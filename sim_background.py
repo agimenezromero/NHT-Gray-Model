@@ -17,7 +17,7 @@ from GrayModelClasses import *
 
 #Run script
 
-Lx = 100e-9
+Lx = 500e-9
 Ly = 10e-9
 Lz = 10e-9
 
@@ -25,17 +25,17 @@ Lx_subcell = 10e-9
 Ly_subcell = 10e-9
 Lz_subcell = 10e-9
 
-T0 = 20
-Tf = 10
-Ti = 10
+T0 = 220
+Tf = 100
+Ti = 100
 
-t_MAX = 5000e-12
+t_MAX = 10e-12
 dt = 1e-12
 
-W = 1
+W = 2000
 
 current_dir = os.getcwd()
-folder = current_dir + '/Diffussive_%.i_ps_W_%.i' % (t_MAX * 1e12, W)
+folder = current_dir + '/T_%.f_Lx_%.f_t_%.f_W_%.f' % (T0, Lx * 1e9, t_MAX * 1e12, W)
 
 if not os.path.exists(folder): os.mkdir(folder)
 
@@ -62,7 +62,7 @@ f.write('W: ' + str(W))
 
 f.close()
 
-gray_model = PhononGas(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
+gray_model = PhononGas_2(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
 
 os.chdir(folder)
 gray_model.simulation()

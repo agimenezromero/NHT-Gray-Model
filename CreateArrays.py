@@ -26,7 +26,7 @@ omega_0_si_TA = 0
 omega_0_si_LO = 9.88e13
 omega_0_si_TO = 10.2e13
 
-k_max_si = 1.157e10
+k_max_si = 1.157e10 / 2
 
 #Maximum frequencies for silicon
 w_max_si_LA = 7.747e13
@@ -70,7 +70,7 @@ omega_0_ge_TA = 0
 omega_0_ge_LO = 5.7e13
 omega_0_ge_TO = 5.5e13
 
-k_max_ge = 1.1105e10
+k_max_ge = 1.1105e10 / 2
 
 #Maximum frequencies for germanium
 w_max_ge_LA = 4.406e13
@@ -293,11 +293,13 @@ if __name__ == '__main__':
 	MFP = np.load('MFP_ge.npy')
 	v = np.load('v_ge.npy')
 	T = np.load('T_ge.npy')
+	N_si = np.load('N_si.npy')
 
 	tau = MFP / v
 
 	print(MFP[190]*1e9)
 	print(tau[190]*1e9)
+	print('N_si at T=%.2f k:' % T[2990], N_si[2990]*1e-29 , '·10^5')
 
 	x = np.linspace(1, 501, 5000)
 
@@ -309,11 +311,48 @@ if __name__ == '__main__':
 
 	y_reg = slope * x_log + intercept
 
+	'''
 	plt.plot(x_log, E_log, ls='', marker='x', label='log log data')
 	plt.plot(x_log, 4*x_log, label='4x')
 	plt.plot(x_log, y_reg, label='Regre log log slope=%.2f' % slope)
 	plt.legend()
-	#plt.show()
+	plt.show()
+	'''
 
+	'''
+	def omega_pos(k):
 
+		return np.sqrt((1 + np.sqrt(1 - 0.88 * np.sin(k/2)**2)))
+
+	def omega_neg(k):
+		return np.sqrt((1 - np.sqrt(1 - 0.88 * np.sin(k/2)**2)))
+
+	k = np.linspace(-8*np.pi/2, 8*np.pi/2, 1000)
+
+	plt.figure(figsize=(8, 6))
+
+	plt.plot(k, omega_pos(k), label='Optical branch')
+	plt.plot(k, omega_neg(k), label='Acoustical branch')
+
+	plt.plot(np.linspace(-np.pi, -np.pi, 100), np.linspace(0, 0.81, 100), ls='--', color='k')
+	plt.plot(np.linspace(np.pi, np.pi, 100), np.linspace(0, 0.81, 100), ls='--', color='k')
+
+	plt.text(-2.3, 0.9, r'Brillouin Zone')
+	plt.annotate(s='', xy=(-3,0.85), xytext=(3,0.85), arrowprops=dict(arrowstyle='<->'))
+
+	locs, labels = plt.xticks()
+
+	new_labels = [r'$-3\pi/a$', r'$-2\pi/a$', r'$-\pi/a$', '0', r'$\pi/a$', r'$2\pi/a$', r'$3\pi/a$']
+	new_locs = np.linspace(-3*np.pi, 3*np.pi, 7)
+
+	plt.legend(loc='upper left')
+	plt.title(r'Dispersion relation $\omega(k)$')
+	plt.ylabel(r'Frequency ($\omega$)')
+	plt.xlabel(r'Wave vector ($k$)')
+
+	plt.ylim(0, 1.8)
+
+	plt.xticks(new_locs, new_labels)
+	plt.show()
+	'''
 

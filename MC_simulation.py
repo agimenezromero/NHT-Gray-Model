@@ -77,6 +77,9 @@ class Plots(object):
 		pass
 
 	def initial_subplots(self, T_0, T_max, n, N, E, w, v, CV, MFP, name):
+		plt.figure(figsize=(11, 6))
+		plt.subplots_adjust(left=0.12, bottom=0.08, right=0.9, top=0.92, wspace=0.3, hspace=0.35)
+
 		#N(T)
 		plt.subplot(3, 2, 1)
 		plt.plot(np.linspace(T_0, T_max, n), N)
@@ -114,10 +117,11 @@ class Plots(object):
 
 		#MFP
 		plt.subplot(3, 2, 6)
-		plt.plot(np.linspace(T_0, T_max, n), np.log(MFP*1e7))
+		plt.plot(np.linspace(T_0, T_max, n), (MFP))
 		#plt.title('Mean Free Path vs Temperature')
 		plt.xlabel('T(K)')
 		plt.ylabel(r'$\Lambda \, (m)$')
+		plt.yscale('log')
 
 		plt.suptitle('Thermal transport properties for %s' % name)
 		plt.show()
@@ -715,7 +719,7 @@ class PhononGas(object):
 #									  #
 #######################################
 
-def plot_subplots():
+def plot_subplots(N_si, E_si, w_si, v_si, CV_si, MFP_si, N_ge, E_ge, w_ge, v_ge, CV_ge, MFP_ge):
 	plot = Plots()
 	plot.initial_subplots(Ts[0], Ts[-1], len(Ts), N_si, E_si, w_si, v_si, CV_si, MFP_si, 'Silicon')
 	plot.initial_subplots(Ts[0], Ts[-1], len(Ts), N_ge, E_ge, w_ge, v_ge, CV_ge, MFP_ge, 'Germanium')
@@ -980,9 +984,9 @@ def log_log():
 
 	x = np.linspace(1, 501, 5000)
 
-	E_log = np.log(E[90:190])
+	E_log = np.log(E[9:19])
 
-	x_log = (np.log(x[90:190]))
+	x_log = (np.log(x[9:19]))
 
 	print(T[90])
 
@@ -997,7 +1001,7 @@ def log_log():
 	plt.show()
 
 #PARAMETERS
-Lx = 500e-9
+Lx = 100e-9
 Ly = 10e-9
 Lz = 10e-9
 
@@ -1012,9 +1016,13 @@ CV_ge *= V_subcell
 Etot_ge *= V_subcell
 tau_ge = MFP_ge / v_ge #tau = lambda / v_avg
 
-T0 = 200
-Tf = 100
-Ti = 100
+N_si *= V_subcell #Account for the different volumes
+CV_si *= V_subcell
+Etot_si *= V_subcell
+
+T0 = 20
+Tf = 10
+Ti = 10
 
 t_MAX = 1000e-12
 dt = 10e-12
@@ -1083,10 +1091,10 @@ def prints():
 #############################################################################################################
 #############################################################################################################
 
-#plot_subplots()
+plot_subplots(N_si, E_si, w_si, v_si, CV_si, MFP_si, N_ge, E_ge, w_ge, v_ge, CV_ge, MFP_ge)
 prints()
 
-log_log()
+#log_log()
 
 print(balistic_T_2(10, 20, 4.56))
 

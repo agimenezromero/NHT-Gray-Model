@@ -379,7 +379,7 @@ class PhononGas(object):
 					for j in range(len(self.r)):
 						if counter == N_phonons: 
 								break
-						if self.r[j][0] > i * self.L_subcell and self.r[j][0] < (i + 1) * self.L_subcell: #is in the i_th subcell
+						if self.r[j][0] > i * self.Lx_subcell and self.r[j][0] < (i + 1) * self.Lx_subcell: #is in the i_th subcell
 
 							counter += 1
 							array_position_phonons_ith_subcell.append(j) #position in self.r array
@@ -849,31 +849,31 @@ class PhononGas_2(object):
 
 		return self.r, self.v, self.E, self.v_avg, self.w_avg, self.C_V, self.MFP
 
-	def check_boundaries(self, i, Lx, Ly, Lz):
+	def check_boundaries(self, i):
 
-		if self.r[i][0] >= Lx or self.r[i][0] < 0:
+		if self.r[i][0] >= self.Lx or self.r[i][0] < 0:
 			self.v[i][0] *= -1.
 
-			if self.r[i][0] > Lx:
-				self.r[i][0] = Lx
+			if self.r[i][0] > self.Lx:
+				self.r[i][0] = self.Lx
 			else:
 				self.r[i][0] = 0
 
-		if self.r[i][1] > Ly or self.r[i][1] < 0:
+		if self.r[i][1] > self.Ly or self.r[i][1] < 0:
 			self.v[i][1] *= -1.
 
-			if self.r[i][1] > Ly:
-				delta_y = self.r[i][1] - Ly
+			if self.r[i][1] > self.Ly:
+				delta_y = self.r[i][1] - self.Ly
 				self.r[i][1] = self.r[i][1] - 2*delta_y
 			else:
 				delta_y = -self.r[i][1] 
 				self.r[i][1] = delta_y
 
-		if self.r[i][2] > Lz or self.r[i][2] < 0:
+		if self.r[i][2] > self.Lz or self.r[i][2] < 0:
 			self.v[i][2] *= -1.
 
-			if self.r[i][2] > Lz:
-				delta_z = self.r[i][2] - Lz
+			if self.r[i][2] > self.Lz:
+				delta_z = self.r[i][2] - self.Lz
 				self.r[i][2] = self.r[i][2] - 2*delta_z
 			else:
 				delta_z = -self.r[i][2] 
@@ -904,7 +904,9 @@ class PhononGas_2(object):
 			for j in range(self.N_subcells_y):
 				for k in range(self.N_subcells_z):
 
-					self.subcell_Ts[i][j][k] = self.match_T(N_subcells[i][j][k], self.N_ge, self.Ts)
+					E_N = E_subcells[i][j][k] / N_subcells[i][j][k]
+
+					self.subcell_Ts[i][j][k] = self.match_T(E_N, self.E_ge, self.Ts)
 
 		return E_subcells, N_subcells
 
@@ -921,7 +923,7 @@ class PhononGas_2(object):
 			y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
 			z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
 
-			if x < self.Lx_subcell or x > (self.N_subcells_x - 1) * self.Lx_subcell :
+			if x < 1 or x > (self.N_subcells_x - 1):
 				pass #Avoid scattering for phonons in hot and cold boundary cells
 
 			else:
@@ -963,7 +965,7 @@ class PhononGas_2(object):
 				for k in range(self.N_subcells_z):
 
 					if delta_E[i][j][k] > self.E_max_ge: #Deletion of phonons
-						E_sobrant = delta_E[i]
+						E_sobrant = delta_E[i][j][k]
 
 						T = self.subcell_Ts[i][j][k]
 						pos_T = self.find_T(T, self.Ts)
@@ -977,7 +979,7 @@ class PhononGas_2(object):
 							array_position_phonons_ith_subcell = []
 							counter = 0
 
-							for j in range(len(self.r)):
+							for l in range(len(self.r)):
 
 								x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
 								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
@@ -989,7 +991,7 @@ class PhononGas_2(object):
 								if x == i and y == j and z == k : #is in the i_th subcell
 
 									counter += 1
-									array_position_phonons_ith_subcell.append(j) #position in self.r array
+									array_position_phonons_ith_subcell.append(l) #position in self.r array
 
 							self.r = np.delete(self.r, array_position_phonons_ith_subcell, 0)
 							self.v = np.delete(self.v, array_position_phonons_ith_subcell, 0)
@@ -1091,6 +1093,7 @@ class PhononGas_2(object):
 		Temperatures = []
 		delta_energy = []
 		scattering_events = []
+		cell_temperatures = []
 
 		for k in range(self.Nt):
 			self.calculate_subcell_T()
@@ -1099,7 +1102,7 @@ class PhononGas_2(object):
 			self.r += self.dt * self.v #Drift
 
 			for i in range(len(self.r)):
-				self.check_boundaries(i, self.Lx, self.Ly, self.Lz)
+				self.check_boundaries(i)
 
 			#interface_scattering()
 			#energy_conservation()
@@ -1124,6 +1127,7 @@ class PhononGas_2(object):
 			Energy.append(np.sum(E_subcells_final))
 			Phonons.append(np.sum(N_subcells_final))
 			Temperatures.append(np.mean(self.subcell_Ts))
+			cell_temperatures.append(self.subcell_Ts)
 
 			'''
 			if k == self.Nt - 1:
@@ -1149,11 +1153,11 @@ class PhononGas_2(object):
 				plt.show()
 			'''
 
-		os.chdir(final_arrays_folder)
+		#os.chdir(final_arrays_folder)
 
 		np.save('Energy.npy', Energy)
 		np.save('Phonons.npy', Phonons)
-		np.save('Subcell_Ts.npy', self.subcell_Ts)
+		np.save('Subcell_Ts.npy', cell_temperatures)
 		np.save('Temperatures.npy', Temperatures)
 		np.save('Scattering_events.npy', scattering_events)
 
@@ -1168,21 +1172,21 @@ class PhononGas_2(object):
 			self.r += self.dt * self.v #Drift
 
 			for i in range(len(self.r)):
-				self.check_boundaries(i, self.Lx, self.Ly, self.Lz)
+				self.check_boundaries(i)
 
 			self.re_init_boundary()
 
-			E_subcells, N_subcells = self.calculate_subcell_T(1, self.N_subcells - 1)
+			E_subcells, N_subcells = self.calculate_subcell_T()
 
 			self.scattering()
 
-			E_subcells_new , N_subcells_new = self.calculate_subcell_T(1, self.N_subcells - 1)
+			E_subcells_new , N_subcells_new = self.calculate_subcell_T()
 
 			delta_E = np.array(E_subcells_new) - np.array(E_subcells)
 
 			self.energy_conservation(delta_E)
 
-			self.calculate_subcell_T(1, self.N_subcells - 1)
+			self.calculate_subcell_T()
 
 			lines[0].set_data(self.r[:,0], self.r[:,1])
 			lines[0].set_3d_properties(self.r[:,2])
@@ -1217,41 +1221,77 @@ class PhononGas_2(object):
 
 if __name__ == '__main__':
 
-	#os.chdir(final_arrays_folder)
-	#print(balistic_T_2(10, 20))
+	def find_T(value, T): 
+		for i in range(len(T)):
+			if T[i] >= value:
+				return i
+
+	def match_T(value, E, T):
+		for i in range(len(E)):
+			if E[i] == value:
+				return T[i]
+
+			elif E[i] > value: #If we exceed the value, use interpolation
+				return T[i] * value /  E[i]
+
+	os.chdir(array_folder)
 
 	#PARAMETERS
-	Lx = 480e-9
-	Ly = 200e-9
-	Lz = 400e-9
+	Lx = 100e-9
+	Ly = 10e-9
+	Lz = 10e-9
 
-	Lx_subcell = 40e-9
-	Ly_subcell = 40e-9
-	Lz_subcell = 40e-9
+	Lx_subcell = 10e-9
+	Ly_subcell = 10e-9
+	Lz_subcell = 10e-9
 
-	T0 = 150
-	Tf = 100
-	Ti = 50
+	T0 = 10
+	Tf = 5
+	Ti = 5
 
-	t_MAX = 1000e-12
+	t_MAX = 5000e-12
 	dt = 1e-12
 
-	W = 1e5
+	W = 1
 
-	#gas = PhononGas_2(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
+	MFP = np.load('MFP_ge.npy')
+	v_avg = np.load('v_ge.npy')
+	Ts = np.load('T_ge.npy')
+
+	print('Max_tau:', np.max(MFP[find_T(Tf, Ts): find_T(T0, Ts)] / v_avg[find_T(Tf, Ts): find_T(T0, Ts)]))
+
+	gas = PhononGas_2(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
+
+	os.chdir(final_arrays_folder)
 	#gas.simulation()
 
 	os.chdir('/home/alexgimenez/Àlex/Estudis/Python/Termodynamics and statistical physics/Gray Model/Data/Final_arrays')
 
 	E = np.load('Energy.npy')
 	T_cells = np.load('Subcell_Ts.npy')
-
+	scattering_events = np.load('Scattering_events.npy')
+	temperatures = np.load('Temperatures.npy')
 
 	x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
 	
-	#plt.plot(x, T_cells[:, int(Ly / 2), int(Lz/2)], ls='-', marker='^')
+	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', marker='^')
+	#plt.plot(x, T_cells[500][:, int(Ly / 2), int(Lz/2)], ls='-', marker='^')
+
+	plt.plot(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)), ls='--', color='k')
+	plt.plot(x, diffussive_T(x, T0, Tf, Lx))
+
+	plt.show()
+
+	#plt.contourf(T_cells[:, :, 0], cmap='hot')
+	#plt.colorbar()
 	#plt.show()
 
-	plt.contourf(T_cells[:, :, 5], cmap='hot')
-	plt.colorbar()
+	plt.subplot(2, 2, 1)
+	plt.plot(np.linspace(0, len(E), len(E)), E)
+	plt.title('E')
+
+	plt.subplot(2, 2, 2)
+	plt.plot(np.linspace(0, len(temperatures), len(temperatures)), temperatures)
+	plt.title('T')
 	plt.show()
+	

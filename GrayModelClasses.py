@@ -1,9 +1,8 @@
 import numpy as np
-import math
-import random
 import os
-from scipy import integrate
 from numpy import linalg as LA
+import random
+import math
 
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
@@ -44,13 +43,6 @@ def balistic_T(T0, Tf):
 		from the Boltzmann Law
 	'''
 	return ((T0**4 + Tf**4)/2)**(0.25)
-
-def balistic_T_2(T0, Tf):
-	'''
-		Computes the steady state temperature for the balistic regime
-		from the Boltzmann Law
-	'''
-	return ((T0**4.1 + Tf**4.1)/2)**(1/4)
 
 
 ############################################
@@ -697,7 +689,7 @@ class PhononGas(object):
 
 		return self.r, self.subcell_Ts
 
-class PhononGas_2(object):
+class GrayModel(object):
 	def __init__(self, Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W):
 		self.Lx = float(Lx) #x length of the box
 		self.Ly = float(Ly) #y length of the box
@@ -849,6 +841,62 @@ class PhononGas_2(object):
 
 		return self.r, self.v, self.E, self.v_avg, self.w_avg, self.C_V, self.MFP
 
+	def diffusive_boundary(self): #Not tried yet
+
+		if self.r[i][0] >= self.Lx or self.r[i][0] < 0:
+			self.v[i][0] *= -1.
+
+			if self.r[i][0] > self.Lx:
+				self.r[i][0] = self.Lx
+			else:
+				self.r[i][0] = 0
+
+		if self.r[i][1] > self.Ly or self.r[i][1] < 0:
+
+			x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
+			y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
+			z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
+
+			v_polar = np.random.random((1, 2))
+
+			self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
+
+			current_T = self.subcell_Ts[x][y][z]
+			pos = self.find_T(current_T, self.Ts)
+
+			self.v[i] *= self.v_ge[pos]
+
+			self.v_avg[i] = self.v_ge[pos]
+			self.w_avg[i] = self.w_ge[pos]
+			self.E[i] = self.E_ge[pos]
+			self.C_V[i] = self.CV_ge[pos]
+			self.MFP[i] = self.MFP_ge[pos]
+
+		if self.r[i][2] > self.Lz or self.r[i][2] < 0:
+
+			x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
+			y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
+			z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
+
+			v_polar = np.random.random((1, 2))
+
+			self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
+
+			current_T = self.subcell_Ts[x][y][z]
+			pos = self.find_T(current_T, self.Ts)
+
+			self.v[i] *= self.v_ge[pos]
+
+			self.v_avg[i] = self.v_ge[pos]
+			self.w_avg[i] = self.w_ge[pos]
+			self.E[i] = self.E_ge[pos]
+			self.C_V[i] = self.CV_ge[pos]
+			self.MFP[i] = self.MFP_ge[pos]
+
 	def check_boundaries(self, i):
 
 		if self.r[i][0] >= self.Lx or self.r[i][0] < 0:
@@ -904,9 +952,9 @@ class PhononGas_2(object):
 			for j in range(self.N_subcells_y):
 				for k in range(self.N_subcells_z):
 
-					E_N = E_subcells[i][j][k] / N_subcells[i][j][k]
+					#E_N = E_subcells[i][j][k] / N_subcells[i][j][k]
 
-					self.subcell_Ts[i][j][k] = self.match_T(E_N, self.E_ge, self.Ts)
+					self.subcell_Ts[i][j][k] = self.match_T(E_subcells[i][j][k], self.Etot_ge, self.Ts)
 
 		return E_subcells, N_subcells
 
@@ -1127,31 +1175,10 @@ class PhononGas_2(object):
 			Energy.append(np.sum(E_subcells_final))
 			Phonons.append(np.sum(N_subcells_final))
 			Temperatures.append(np.mean(self.subcell_Ts))
-			cell_temperatures.append(self.subcell_Ts)
 
-			'''
-			if k == self.Nt - 1:
-				N_subcells_right, N_subcells_left, Ts_right, Ts_left = self.calculate_subcell_T_2(0, self.N_subcells)
+			copy_subcells = np.copy(self.subcell_Ts)
 
-				plt.plot(np.linspace(0, len(self.E), len(self.E)), self.E, ls='', marker='.')
-				plt.show()
-				
-				x = np.linspace(0, len(delta_energy), len(delta_energy))
-				avg = np.mean(delta_energy)
-
-				E_min = self.E_ge[self.find_T(self.Tf, self.Ts)] * 1e22
-
-				plt.subplot(1, 2, 1)
-				plt.plot(x, delta_energy, ls='-', marker='.', label=r'$E_N=%.2f·10^{-22}$ for $T_f=%.2f$' % (E_min, self.Tf))
-				plt.plot(x, np.linspace(avg, avg, len(delta_energy)), ls='--', color='k', label='Avg')
-				plt.title(r'$\Delta E$ scattering process')
-				plt.legend()
-
-				plt.subplot(1, 2, 2)
-				plt.plot(np.linspace(0, self.Nt, self.Nt), scattering_events)
-				plt.title('Scattering events in time')
-				plt.show()
-			'''
+			cell_temperatures.append(copy_subcells)
 
 		#os.chdir(final_arrays_folder)
 
@@ -1160,6 +1187,27 @@ class PhononGas_2(object):
 		np.save('Subcell_Ts.npy', cell_temperatures)
 		np.save('Temperatures.npy', Temperatures)
 		np.save('Scattering_events.npy', scattering_events)
+
+		f = open('parameters_used.txt', 'w')
+
+		f.write('Lx: ' + str(self.Lx) + '\n')
+		f.write('Ly: ' + str(self.Ly) + '\n')
+		f.write('Lz: ' + str(self.Lz) + '\n\n')
+
+		f.write('Lx_subcell: ' + str(self.Lx_subcell) + '\n')
+		f.write('Ly_subcell: ' + str(self.Ly_subcell) + '\n')
+		f.write('Lz_subcell: ' + str(self.Lz_subcell) + '\n\n')
+
+		f.write('T0: ' + str(self.T0) + '\n')
+		f.write('Tf: ' + str(self.Tf) + '\n')
+		f.write('Ti: ' + str(self.Ti) + '\n\n')
+
+		f.write('t_MAX: ' + str(self.t_MAX) + '\n')
+		f.write('dt: ' + str(self.dt) + '\n\n')
+
+		f.write('W: ' + str(self.W))
+
+		f.close()
 
 		#return self.subcell_Ts, Energy, Phonons, Temperatures, N_subcells_right, N_subcells_left, Ts_right, Ts_left
 
@@ -1219,6 +1267,54 @@ class PhononGas_2(object):
 
 		return self.r, self.subcell_Ts
 
+	def animation_2(self):
+		self.init_particles()
+
+		def update(t, x, lines):
+			k = int(t / self.dt)
+
+			self.r += self.dt * self.v #Drift
+
+			for i in range(len(self.r)):
+				self.check_boundaries(i)
+
+			self.re_init_boundary()
+
+			E_subcells, N_subcells = self.calculate_subcell_T()
+
+			self.scattering()
+
+			E_subcells_new , N_subcells_new = self.calculate_subcell_T()
+
+			delta_E = np.array(E_subcells_new) - np.array(E_subcells)
+
+			#self.energy_conservation(delta_E)
+
+			self.calculate_subcell_T()
+
+			lines[0].set_data(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)])
+			lines[1].set_data(x, diffussive_T(x, self.T0, self.Tf, self.Lx))
+			lines[2].set_data(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)))
+			lines[3].set_text('Time step %i of %i' % (k, self.Nt))
+
+			return lines
+
+		# Attaching 3D axis to the figure
+		fig, ax = plt.subplots()
+
+		x = np.linspace(0, self.Lx, int(round(self.Lx/self.Lx_subcell, 0)))
+
+		lines = [ax.plot(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)], '-o', color='r', label='Temperature')[0], ax.plot(x, diffussive_T(x, self.T0, self.Tf, self.Lx), label='Diffusive')[0],
+		ax.plot(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)), ls='--', color='k', label='Ballistic')[0], ax.text(0, self.Tf, '', color='k', fontsize=10)]
+
+		ani = FuncAnimation(fig, update, fargs=(x, lines), frames=np.linspace(0, self.t_MAX-self.dt, self.Nt),
+		                    blit=True, interval=1, repeat=False)
+		#ani.save('animation.mp4', fps=20, writer="ffmpeg", codec="libx264")
+		plt.legend(loc = 'upper right')
+		plt.show()
+
+		return self.r, self.subcell_Ts
+
 if __name__ == '__main__':
 
 	def find_T(value, T): 
@@ -1237,7 +1333,7 @@ if __name__ == '__main__':
 	os.chdir(array_folder)
 
 	#PARAMETERS
-	Lx = 100e-9
+	Lx = 500e-9
 	Ly = 10e-9
 	Lz = 10e-9
 
@@ -1245,14 +1341,14 @@ if __name__ == '__main__':
 	Ly_subcell = 10e-9
 	Lz_subcell = 10e-9
 
-	T0 = 10
-	Tf = 5
+	T0 = 11.88
+	Tf = 3
 	Ti = 5
 
-	t_MAX = 5000e-12
+	t_MAX = 10000e-12
 	dt = 1e-12
 
-	W = 1
+	W = 0.10
 
 	MFP = np.load('MFP_ge.npy')
 	v_avg = np.load('v_ge.npy')
@@ -1260,38 +1356,54 @@ if __name__ == '__main__':
 
 	print('Max_tau:', np.max(MFP[find_T(Tf, Ts): find_T(T0, Ts)] / v_avg[find_T(Tf, Ts): find_T(T0, Ts)]))
 
-	gas = PhononGas_2(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
+	gas = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W)
 
-	os.chdir(final_arrays_folder)
-	#gas.simulation()
+	if not os.path.exists('/Diffusive_1D_T_low'): os.mkdir(current_dir + '/Diffusive_1D_T_low')
+	os.chdir(current_dir + '/Diffusive_1D_T_low')
 
-	os.chdir('/home/alexgimenez/Àlex/Estudis/Python/Termodynamics and statistical physics/Gray Model/Data/Final_arrays')
+	gas.simulation()
 
+	'''
 	E = np.load('Energy.npy')
+	N = np.load('Phonons.npy')
 	T_cells = np.load('Subcell_Ts.npy')
 	scattering_events = np.load('Scattering_events.npy')
 	temperatures = np.load('Temperatures.npy')
 
-	x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
-	
-	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', marker='^')
-	#plt.plot(x, T_cells[500][:, int(Ly / 2), int(Lz/2)], ls='-', marker='^')
+	print(len(T_cells))
 
-	plt.plot(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)), ls='--', color='k')
-	plt.plot(x, diffussive_T(x, T0, Tf, Lx))
+	#Subplots
+	plt.subplot(2, 2, 1)
+	plt.plot(np.linspace(0, len(E), len(E)), E)
+	plt.title('E')
+
+	plt.subplot(2, 2, 2)
+	plt.plot(np.linspace(0, len(N), len(N)), N)
+	plt.title('N')
+
+	plt.subplot(2, 2, 3)
+	plt.plot(np.linspace(0, len(temperatures), len(temperatures)), temperatures)
+	plt.title('T')
+	
+	plt.subplot(2, 2, 4)
+	plt.plot(np.linspace(0, len(scattering_events), len(scattering_events)), scattering_events)
+	plt.title('Scattering events')
+
+	plt.show()
+
+	#T plot
+	x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
+
+	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='^')
+	plt.plot(x, T_cells[500][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^')
+
+	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k')
+	plt.plot(x, diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), color='k')
 
 	plt.show()
 
 	#plt.contourf(T_cells[:, :, 0], cmap='hot')
 	#plt.colorbar()
 	#plt.show()
-
-	plt.subplot(2, 2, 1)
-	plt.plot(np.linspace(0, len(E), len(E)), E)
-	plt.title('E')
-
-	plt.subplot(2, 2, 2)
-	plt.plot(np.linspace(0, len(temperatures), len(temperatures)), temperatures)
-	plt.title('T')
-	plt.show()
+	'''
 	

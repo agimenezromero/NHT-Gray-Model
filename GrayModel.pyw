@@ -247,6 +247,58 @@ class Window(QMainWindow):
 
 
 	#Make plots
+	def get_parameters(self, filename):
+		f = open(filename, 'r')
+
+		i = 0
+
+		for line in f:
+
+			cols = line.split()
+
+			if len(cols) > 0:
+				value = float(cols[1])
+
+			if i == 0:
+				Lx = value
+
+			elif i == 1:
+				Ly = value
+
+			elif i == 2:
+				Lz = value
+
+			elif i == 4:
+				Lx_subcell = value
+
+			elif i == 5:
+				Ly_subcell = value
+
+			elif i == 6:
+				Lz_subcell = value
+
+			elif i == 8:
+				T0 = value
+
+			elif i == 9:
+				Tf = value
+
+			elif i == 10:
+				Ti = value
+
+			elif i == 12:
+				t_MAX = value
+
+			elif i == 13:
+				dt = value
+
+			elif i == 15:
+				W = value
+
+			i += 1
+
+		return Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W
+
 	def obrir_make_evolution_plots(self):
 
 		if self.choose_folder.isChecked() and self.folder_loaded.text() == '':
@@ -266,6 +318,9 @@ class Window(QMainWindow):
 				N = np.load('Phonons.npy')
 				T = np.load('Temperatures.npy')
 				scattering_events = np.load('Scattering_events.npy')
+
+				#With this we can plot the time if we want as xlabel rather than frames
+				Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W = self.get_parameters('parameters_used.txt')
 
 				os.chdir(data_folder)
 
@@ -353,28 +408,25 @@ class Window(QMainWindow):
 
 				os.chdir(final_arrays_folder)
 
-			Lx = float(self.Lx.value()) * 1e-9
-			T0 = float(self.T0.value())
-			Tf = float(self.Tf.value()) 
-			t_MAX = float(self.t.value()) * 1e-12
+			Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W = self.get_parameters('parameters_used.txt')
 
 			if os.path.exists('Subcell_Ts.npy'):
 				T_cells = list(np.load('Subcell_Ts.npy'))
 
-				x = np.linspace(0, Lx, len(T_cells))
+				x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
 
 				#Temperature plot
 				theo_T = ((T0**4 + Tf**4)/2)**(0.25)
 
-				exp_avg_T = np.mean(T_cells[1 : len(T_cells) - 1])
+				exp_avg_T = np.mean(T_cells[-1][1 : len(T_cells) - 1, int(Ly / 2), int(Lz/2)])
 
-				plt.plot(x, T_cells, '-', marker='.', label='MC simulation T')
+				plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], '-', marker='.', label='MC simulation T')
 				
 				if self.balistic.isChecked():
-					plt.plot(x, np.linspace(theo_T, theo_T, len(T_cells)), '--', color = 'orange', label='Balistic steady state T=%.2f' % theo_T)
+					plt.plot(x, np.linspace(theo_T, theo_T, len(T_cells[-1])), '--', color = 'orange', label='Balistic steady state T=%.2f' % theo_T)
 				
 				if self.average.isChecked():
-					plt.plot(x, np.linspace(exp_avg_T, exp_avg_T , len(T_cells)), '--', color = 'r', label='Experimental steady state avg T=%.2f' % exp_avg_T)
+					plt.plot(x, np.linspace(exp_avg_T, exp_avg_T , len(T_cells[-1])), '--', color = 'r', label='Experimental steady state avg T=%.2f' % exp_avg_T)
 
 				if self.diffussive.isChecked():
 					plt.plot(x, diffussive_T(x, T0, Tf, Lx), ls = '--', color = 'k', label='Diffussive steady state')

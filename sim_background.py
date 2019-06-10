@@ -20,7 +20,7 @@ T0 = 300
 Tf = 280
 Ti = 280
 
-t_MAX = 2000e-12
+t_MAX = 2e-12
 dt = 0.01e-12
 
 W = 5e-1
@@ -36,34 +36,6 @@ folder_outputs = 'OUTPUTS'
 ##########################################################################################################
 
 #RUN SIMULATION
-
-current_dir = os.getcwd()
-folder = current_dir + '/' + folder_outputs
-
-if not os.path.exists(folder): os.mkdir(folder)
-os.chdir(folder)
-
-f = open('parameters_used.txt', 'w')
-
-f.write('Lx: ' + str(Lx) + '\n')
-f.write('Ly: ' + str(Ly) + '\n')
-f.write('Lz: ' + str(Lz) + '\n\n')
-
-f.write('Lx_subcell: ' + str(Lx_subcell) + '\n')
-f.write('Ly_subcell: ' + str(Ly_subcell) + '\n')
-f.write('Lz_subcell: ' + str(Lz_subcell) + '\n\n')
-
-f.write('T0: ' + str(T0) + '\n')
-f.write('Tf: ' + str(Tf) + '\n')
-f.write('Ti: ' + str(Ti) + '\n\n')
-
-f.write('t_MAX: ' + str(t_MAX) + '\n')
-f.write('dt: ' + str(dt) + '\n\n')
-
-f.write('W: ' + str(W) + '\n')
-f.write('Every_flux: ' + str(every_flux))
-
-f.close()
 
 gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux, init_restart, folder_restart)
 

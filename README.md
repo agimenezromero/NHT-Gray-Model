@@ -51,12 +51,14 @@ To initialise each of the available classes the following parameters must be pas
 - `init_restart` : (bool, optional) - Set to true to initialise a simulation from a restart. 
 - `folder_restart` : (string, optional) - Specify the restart folder to start with.
 
-To use the simulation function this parameters are also needed
+Moreover, simulation function admit this optional parameters
 
-- `every_restart` (int) - Restart writting period in frame units.
-- `folder_outputs` : (string) - Folder name to save output files.
+- `every_restart` (int, optional) - Restart writting period in frame units.
+- `folder_outputs` : (string, optional) - Folder name to save output files.
 
 # Examples
+
+## New simulation
 
 ```python
 from GrayModelClasses import *
@@ -65,6 +67,17 @@ from GrayModelClasses import *
 
 gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 gray_model.simulation(every_restart, folder_outputs)
+```
+
+## Simulation from restart
+
+```python
+from GrayModelClasses import *
+
+#Define the variables, although the values won't be used
+
+gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model.simulation()
 ```
 
 # Authors

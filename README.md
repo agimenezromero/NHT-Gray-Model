@@ -1,5 +1,5 @@
 # Nanoscale Heat Transport - Gray Model approach
-Python little library to simulate nanoscale hat transport from the Gray Model approach. It has been used to study nanoscale heat transport in the following final degree project: (https://github.com/agimenezromero/NHT-Gray-Model/tree/master/Final%20Degree%20Project)
+Python little library to simulate nanoscale hat transport from the Gray Model approach. It has been used to study nanoscale heat transport in the following final degree project: https://github.com/agimenezromero/NHT-Gray-Model/tree/master/Final%20Degree%20Project
 
 # Overview
 The aim of this program is to simulate thermal transport at nanoscale. The method used is known as the Gray Model, which considers that phonon properties (shuch as energy, average velocity, average frequency...) are based only on local sub-cell temperature. 

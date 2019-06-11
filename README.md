@@ -17,6 +17,7 @@ Table of contents
    * [Table of contents](#table-of-contents)
    * [Requeriments](#requeriments)
    * [Usage](#usage)
+   * [Examples](#examples)
    * [Authors](#authors)
    * [License](#license)
    * [Acknowledgments](#acknowledgments)
@@ -27,7 +28,7 @@ Table of contents
 - Matplotlib
 
 # Usage
-To initialise the corresponding Class one wants to use the following parameters must be passed in:
+To initialise each of the available classes the following parameters must be passed in:
 
 - `Lx` (float) - Domain lenght (x-direction).
 - `Ly` (float) - Domain width (y-direction).
@@ -54,9 +55,19 @@ To initialise the corresponding Class one wants to use the following parameters 
 - `init_restart` : (bool, optional) - Set to true to initialise a simulation from a restart. 
 - `folder_restart` : (string, optional) - Specify the restart folder to start with.
 
+# Examples
+
+```python
+from GrayModelClasses import *
+
+#Define the variables: Lx, Ly, Lz, etc.
+
+gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model.simulation(every_restart, folder_outputs)
+```
 
 # Authors
-* **Àlex Giménez**
+* **A. Giménez-Romero**
 
 # License
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/agimenezromero/NHT-Gray-Model/blob/master/LICENSE) file for details

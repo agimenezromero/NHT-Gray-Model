@@ -98,15 +98,26 @@ gray_model.simulation(every_restart, folder_outputs)
 
 ## Simulation from restart
 
+To run a simulation from a restart only the `init_restart` and `restart_folder` are needed to initialise the class. If the class is initialized with some of the other arguments of the exemple above they will be simply ignored.
+
 ```python
 from GrayModelClasses import *
 
 #Define the variables, although the values won't be used
 
-gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
-gray_model.simulation()
+gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
+gray_model.simulation_from_restart()
 ```
+However optional arguments can be passed to the `simulation_from_restart` function
 
+```python
+from GrayModelClasses import *
+
+#Define the variables, although the values won't be used
+
+gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
+gray_model.simulation_from_restart(every_restart=1000, folder='EXEMPLE_OUTPUTS')
+```
 ## Animation
 
 ## Animation from restart

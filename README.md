@@ -1,5 +1,5 @@
 # Nanoscale Heat Transport - Gray Model approach
-Python little library to simulate nanoscale hat transport from the Gray Model approach.
+Python little library to simulate nanoscale hat transport from the Gray Model approach. It has been used to study nanoscale heat transport in the following final degree project: 
 
 # Overview
 The aim of this program is to simulate thermal transport at nanoscale. The method used is known as the Gray Model, which considers that phonon properties (shuch as energy, average velocity, average frequency...) are based only on local sub-cell temperature. 
@@ -8,6 +8,8 @@ Two simulation types have been implemented:
 
 1. `GrayModel` : Considers specular reflection with the domain walls.
 2. `GrayModel_diffusive_walls` : Considers diffusive reflection with the domain walls.
+
+More information about the model can be found in the [final degree project](). 
 
 Table of contents
 =================
@@ -18,6 +20,7 @@ Table of contents
    * [Requeriments](#requeriments)
    * [Usage](#usage)
    * [Examples](#examples)
+       - [Create input arrays](#create-input-arrays)
        - [New simulation](#new-simulation)
        - [Simulation from restart](#simulation-from-restart)
        - [Animation](#animation)
@@ -30,9 +33,16 @@ Table of contents
 # Requeriments
 - NumPy
 - Matplotlib
+- SciPy
 
 # Usage
-To initialise each of the available classes the following parameters must be passed in:
+First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been implemented. For the study in the final degree project germanium and silicon have been simulated, so there are two simple functions developed to create and storage the corresponding arrays easily: `save_arrays_germanium(init_T, final_T, n)`, `save_arrays_silicon(init_T, final_T, n)`.
+
+- `ìnit_T` (float) - Initial temperature for the computed properties.
+- `final_T` (float) - Final temperature for the computed properties.
+- `n` (int) - Number of points between initial and final temperatures.
+
+To initialise both of the available simulation classes (`GrayMode`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 
 - `Lx` (float) - Domain lenght (x-direction).
 - `Ly` (float) - Domain width (y-direction).
@@ -61,6 +71,22 @@ Moreover, simulation function admit this optional parameters
 - `folder_outputs` : (string, optional) - Folder name to save output files.
 
 # Examples
+
+## Create input arrays
+To create and storage the input arrays needed by the simulation software the `ThermalProperties` class has been developed. Then, two functions have been built to use it to create the input arrays for germanium and silicon. 
+
+```python
+from GrayModelClasses import *
+
+init_T = 1
+final_T = 500
+n = 10000
+
+save_arrays_germanium(init_T, final_T, n)
+save_arrays_silicon(init_T, final_T, n)
+```
+
+With this simple code the input arrays for these materials will be created  and stored in the automatically created `Input_arrays` folder.
 
 ## New simulation
 

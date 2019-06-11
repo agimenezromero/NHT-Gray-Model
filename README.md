@@ -47,13 +47,14 @@ To initialise each of the available classes the following parameters must be pas
 
 - `W` (float) - Weighting factor.
 - `every_flux` (int) - Flux calculation period in frame units.
-- `every_restart` (int) - Restart writting period in frame units.
-
-
-- `folder_outputs` : (string) - Folder name to save output files.
 
 - `init_restart` : (bool, optional) - Set to true to initialise a simulation from a restart. 
 - `folder_restart` : (string, optional) - Specify the restart folder to start with.
+
+To use the simulation function this parameters are also needed
+
+- `every_restart` (int) - Restart writting period in frame units.
+- `folder_outputs` : (string) - Folder name to save output files.
 
 # Examples
 

@@ -86,7 +86,6 @@ dt = 0.1e-12
 
 W = 0.05
 every_flux = 5
-every_restart = 1000
 
 #Optional: Default are 100 and 'OUTPUTS'
 every_restart = 1000
@@ -103,8 +102,6 @@ To run a simulation from a restart only the `init_restart` and `restart_folder` 
 ```python
 from GrayModelClasses import *
 
-#Define the variables, although the values won't be used
-
 gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
 gray_model.simulation_from_restart()
 ```
@@ -113,14 +110,46 @@ However optional arguments can be passed to the `simulation_from_restart` functi
 ```python
 from GrayModelClasses import *
 
-#Define the variables, although the values won't be used
-
-gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
-gray_model.simulation_from_restart(every_restart=1000, folder='EXEMPLE_OUTPUTS')
+gray_model = GrayModel(init_restart=True, folder_restart='restart_1000')
+gray_model.simulation_from_restart(every_restart=1000, folder='EXAMPLE_OUTPUTS')
 ```
 ## Animation
+A real time animation of the sub-cell temperature evolution is also available, which makes all the calculation needed *on the fly*. Runing the animation for a new system is as simple as running a simulation.
+
+```python
+from GrayModelClasses import *
+
+Lx = 10e-9
+Ly = 10e-9
+Lz = 10e-9
+
+Lx_subcell = 0.5e-9
+Ly_subcell = 10e-9
+Lz_subcell = 10e-9
+
+T0 = 11.88
+Tf = 3
+Ti = 5
+
+t_MAX = 10e-9
+dt = 0.1e-12
+
+W = 0.05
+every_flux = 5
+
+gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model.animation()
+```
 
 ## Animation from restart
+And one can also start the animation from an existing restart
+
+```python
+from GrayModelClasses import *
+
+gray_model = GrayModel(init_restart=True, folder_restart='restart_1000')
+gray_model.animation_from_restart()
+```
 
 # Authors
 * **A. Giménez-Romero**

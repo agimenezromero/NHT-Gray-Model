@@ -52,7 +52,7 @@ def balistic_T(T0, Tf):
 ############################################
 
 class GrayModel(object):
-	def __init__(self, Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux, init_restart, folder):
+	def __init__(self, Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux, init_restart = False, folder = 'None'):
 
 		if init_restart :
 
@@ -783,7 +783,7 @@ class GrayModel(object):
 
 		f.close()
 
-	def simulate_from_restart(self, every_restart, folder):
+	def simulation_from_restart(self, every_restart, folder):
 
 		Energy = []
 		Phonons = []
@@ -928,9 +928,9 @@ class GrayModel(object):
 
 			self.calculate_subcell_T()
 
-			lines[0].set_data(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)])
+			lines[0].set_data(x, self.subcell_Ts[:, int(self.Ly / 2), int(self.Lz/2)])
 			lines[1].set_data(x, diffussive_T(x, self.T0, self.Tf, self.Lx))
-			lines[2].set_data(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)))
+			lines[2].set_data(x, np.linspace(balistic_T(self.T0, self.Tf), balistic_T(self.T0, self.Tf), len(x)))
 			lines[3].set_text('Time step %i of %i' % (k, self.Nt))
 
 			return lines
@@ -940,8 +940,8 @@ class GrayModel(object):
 
 		x = np.linspace(0, self.Lx, int(round(self.Lx/self.Lx_subcell, 0)))
 
-		lines = [ax.plot(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)], '-o', color='r', label='Temperature')[0], ax.plot(x, diffussive_T(x, self.T0, self.Tf, self.Lx), label='Diffusive')[0],
-		ax.plot(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)), ls='--', color='k', label='Ballistic')[0], ax.text(0, self.Tf, '', color='k', fontsize=10)]
+		lines = [ax.plot(x, self.subcell_Ts[:, int(self.Ly / 2), int(self.Lz/2)], '-o', color='r', label='Temperature')[0], ax.plot(x, diffussive_T(x, self.T0, self.Tf, self.Lx), label='Diffusive')[0],
+		ax.plot(x, np.linspace(balistic_T(self.T0, self.Tf), balistic_T(self.T0, self.Tf), len(x)), ls='--', color='k', label='Ballistic')[0], ax.text(0, self.Tf, '', color='k', fontsize=10)]
 
 		ani = FuncAnimation(fig, update, fargs=(x, lines), frames=np.linspace(0, self.t_MAX-self.dt, self.Nt),
 		                    blit=True, interval=1, repeat=False)
@@ -978,9 +978,9 @@ class GrayModel(object):
 
 			self.calculate_subcell_T()
 
-			lines[0].set_data(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)])
+			lines[0].set_data(x, self.subcell_Ts[:, int(self.Ly / 2), int(self.Lz/2)])
 			lines[1].set_data(x, diffussive_T(x, self.T0, self.Tf, self.Lx))
-			lines[2].set_data(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)))
+			lines[2].set_data(x, np.linspace(balistic_T(self.T0, self.Tf), balistic_T(self.T0, self.Tf), len(x)))
 			lines[3].set_text('Time step %i of %i' % (k, self.Nt))
 
 			return lines
@@ -990,8 +990,8 @@ class GrayModel(object):
 
 		x = np.linspace(0, self.Lx, int(round(self.Lx/self.Lx_subcell, 0)))
 
-		lines = [ax.plot(x, self.subcell_Ts[:, int(Ly / 2), int(Lz/2)], '-o', color='r', label='Temperature')[0], ax.plot(x, diffussive_T(x, self.T0, self.Tf, self.Lx), label='Diffusive')[0],
-		ax.plot(x, np.linspace(balistic_T(T0, Tf), balistic_T(T0, Tf), len(x)), ls='--', color='k', label='Ballistic')[0], ax.text(0, self.Tf, '', color='k', fontsize=10)]
+		lines = [ax.plot(x, self.subcell_Ts[:, int(self.Ly / 2), int(self.Lz/2)], '-o', color='r', label='Temperature')[0], ax.plot(x, diffussive_T(x, self.T0, self.Tf, self.Lx), label='Diffusive')[0],
+		ax.plot(x, np.linspace(balistic_T(self.T0, self.Tf), balistic_T(self.T0, self.Tf), len(x)), ls='--', color='k', label='Ballistic')[0], ax.text(0, self.Tf, '', color='k', fontsize=10)]
 
 		ani = FuncAnimation(fig, update, fargs=(x, lines), frames=np.linspace(0, self.t_MAX-self.dt, self.Nt),
 		                    blit=True, interval=1, repeat=False)
@@ -1053,52 +1053,8 @@ if __name__ == '__main__':
 	print('v_avg max:', v_avg[find_T(Tf, Ts)])
 	print('N: ', np.mean(N[find_T(Tf, Ts): find_T(T0, Ts)]))
 
-	gas = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux, init_restart, folder_restart)
+	gas = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 
 	#gas.simulation(every_restart, folder_outputs)
 	gas.animation()
-
-	'''
-	E = np.load('Energy.npy')
-	N = np.load('Phonons.npy')
-	T_cells = np.load('Subcell_Ts.npy')
-	scattering_events = np.load('Scattering_events.npy')
-	temperatures = np.load('Temperatures.npy')
-
-	print(len(T_cells))
-
-	#Subplots
-	plt.subplot(2, 2, 1)
-	plt.plot(np.linspace(0, len(E), len(E)), E)
-	plt.title('E')
-
-	plt.subplot(2, 2, 2)
-	plt.plot(np.linspace(0, len(N), len(N)), N)
-	plt.title('N')
-
-	plt.subplot(2, 2, 3)
-	plt.plot(np.linspace(0, len(temperatures), len(temperatures)), temperatures)
-	plt.title('T')
-	
-	plt.subplot(2, 2, 4)
-	plt.plot(np.linspace(0, len(scattering_events), len(scattering_events)), scattering_events)
-	plt.title('Scattering events')
-
-	plt.show()
-
-	#T plot
-	x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
-
-	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='^')
-	plt.plot(x, T_cells[500][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^')
-
-	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k')
-	plt.plot(x, diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), color='k')
-
-	plt.show()
-
-	#plt.contourf(T_cells[:, :, 0], cmap='hot')
-	#plt.colorbar()
-	#plt.show()
-	'''
 	

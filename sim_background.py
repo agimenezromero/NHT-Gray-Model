@@ -25,19 +25,20 @@ dt = 0.01e-12
 
 W = 5e-1
 every_flux = 5
-every_restart = 1000
-
-init_restart = False
-folder_restart = 'restart_3000'
+every_restart = 100
 
 folder_outputs = 'OUTPUTS'
+
+#Just needed if starting from restart: default are False and None
+init_restart = True
+folder_restart = 'restart_100'
 
 ##########################################################################################################
 ##########################################################################################################
 
 #RUN SIMULATION
 
-gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux, init_restart, folder_restart)
+gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 
 t0 = current_time()
 

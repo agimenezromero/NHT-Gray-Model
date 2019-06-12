@@ -886,7 +886,7 @@ def animated_ballistic_1D():
 
 folders_diffusive = ['Diffusive_1D_T_low', 'Diffusive_1D_T_high/OUTPUTS', 'Diffusive_1D_T_high/OUTPUTS_2']
 
-folders_ballistic = ['Ballistic_1D', 'Ly_10_nm', 'Ly_5_nm', 'Ly_1_nm', 'Ly_0.5_nm/OUTPUTS',]
+folders_ballistic = ['Ballistic_1D', 'Ly_10_nm/OUTPUTS', 'Ly_5_nm/OUTPUTS', 'Ly_1_nm/OUTPUTS', 'Ly_0.5_nm/OUTPUTS',]
 
 folders_conductivity = ['Ballistic_to_diffusive_Lx/Lx_100_nm/OUTPUTS', 'Ballistic_to_diffusive_Lx/Lx_500_nm/OUTPUTS',
 						'Ballistic_to_diffusive_Lx/Lx_1000_nm/OUTPUTS']
@@ -907,13 +907,13 @@ folders_conductivity_T_high_restart = ['Ballistic_to_diffusive_high_T/Lx_1_nm/la
 #Ballistic_regime_1D('Ballistic_boundary_diff_Ly_1_nm')
 #Diffusive_regime_1D('Ballistic_to_diffusive_high_T/Lx_100_nm/OUTPUTS')
 
-#Ballistic_to_diffusive_1D_roughness(folders_ballistic)
+Ballistic_to_diffusive_1D_roughness(folders_ballistic)
 #Ballistic_to_diffusive_Lx(['Ballistic_1D', 'Lx_100_nm/OUTPUTS', 'Lx_500_nm/OUTPUTS', 'Lx_1000_nm/OUTPUTS'])
 #Ballistic_to_diffusive_Lx_scalled(['Ballistic_1D', 'Lx_100_nm/OUTPUTS', 'Lx_500_nm/OUTPUTS', 'Lx_1000_nm/OUTPUTS'])
 #Ballistic_to_diffusive_high_T_scalled(folders_diffusive_high_T)
 
-#all_plots('/DIFFUSIVE/500_nm/OUTPUTS')
-plots_restart('/DIFFUSIVE/500_nm/restart_1000', 1000)
+#all_plots('/Ballistic_to_diffusive_low_T/Lx_1000_nm/OUTPUTS')
+#plots_restart('/DIFFUSIVE/500_nm/restart_1000', 1000)
 
 #conductivity_plots(folders_conductivity_T_high)
 #conductivity_plots_nosim(folders_conductivity_T_high_restart)

@@ -982,6 +982,9 @@ class GrayModel(object):
 
 			elapsed_time.append(current_time() - t0)
 
+		#Save last restart
+		self.save_restart(k+1)
+
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
 
@@ -1016,10 +1019,6 @@ class GrayModel(object):
 		f.write('Every_flux: ' + str(self.every_flux))
 
 		f.close()
-
-		x = np.linspace(0, len(delta_energy), len(delta_energy))
-		plt.plot(x, delta_energy)
-		plt.show()
 
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
@@ -1104,6 +1103,9 @@ class GrayModel(object):
 			cell_temperatures.append(copy_subcells)
 
 			elapsed_time.append(current_time() - t0)
+
+		#Save last restart
+		self.save_restart(k+1)
 
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
@@ -1544,7 +1546,7 @@ class GrayModel_diffusive_walls(object):
 
 		return scattering_events
 
-	def energy_conservation(self, delta_E):
+	def energy_conservation_old(self, delta_E):
 		for i in range(self.N_subcells_x):
 			for j in range(self.N_subcells_y):
 				for k in range(self.N_subcells_z):
@@ -1586,6 +1588,72 @@ class GrayModel_diffusive_walls(object):
 							self.C_V = np.delete(self.C_V, array_position_phonons_ith_subcell, 0)
 							self.MFP = np.delete(self.MFP, array_position_phonons_ith_subcell, 0)
 							self.scattering_time = np.delete(self.scattering_time, array_position_phonons_ith_subcell, 0)
+
+					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
+						E_sobrant = -delta_E[i][j][k]
+
+						T = self.subcell_Ts[i][j][k]
+						pos_T = self.find_T(T, self.Ts)
+
+						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
+
+						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to create
+
+						if N_phonons != 0:
+
+							self.r = list(self.r)
+							self.v = list(self.v)
+							self.v_avg = list(self.v_avg)
+							self.w_avg = list(self.w_avg)
+							self.E = list(self.E)
+							self.C_V = list(self.C_V)
+							self.MFP = list(self.MFP)
+							self.scattering_time = list(self.scattering_time)
+
+							self.create_phonons(N_phonons, i, j, k, T)
+
+							self.r = np.array(self.r)
+							self.v = np.array(self.v)
+							self.v_avg = np.array(self.v_avg)
+							self.w_avg = np.array(self.w_avg)
+							self.E = np.array(self.E)
+							self.C_V = np.array(self.C_V)
+							self.MFP = np.array(self.MFP)
+							self.scattering_time = np.array(self.scattering_time)
+
+	def energy_conservation(self, delta_E):
+		for i in range(1, self.N_subcells_x - 1):
+			for j in range(self.N_subcells_y):
+				for k in range(self.N_subcells_z):
+
+					current_energy = delta_E[i][j][k]
+
+					if current_energy > self.E_max_ge:
+
+						while current_energy > self.E_max_ge: #Delete phonons
+
+							for l in range(len(self.r)):
+
+								x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
+								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
+								z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
+
+								if x == i and y == j and z == k : #is in the i_th subcell
+
+									current_energy -= self.E[l] * self.W
+
+									self.r = np.delete(self.r, l, 0)
+									self.v = np.delete(self.v, l, 0)
+									self.E = np.delete(self.E, l, 0)
+									self.v_avg = np.delete(self.v_avg, l, 0)
+									self.w_avg = np.delete(self.w_avg, l, 0)
+									self.C_V = np.delete(self.C_V, l, 0)
+									self.MFP = np.delete(self.MFP, l, 0)
+									self.scattering_time = np.delete(self.scattering_time, l, 0)
+
+									break
+
+							break
 
 					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
 						E_sobrant = -delta_E[i][j][k]
@@ -1900,6 +1968,9 @@ class GrayModel_diffusive_walls(object):
 
 			elapsed_time.append(current_time() - t0)
 
+		#Save last restart
+		self.save_restart(k+1)
+
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
 
@@ -1934,10 +2005,6 @@ class GrayModel_diffusive_walls(object):
 		f.write('Every_flux: ' + str(self.every_flux))
 
 		f.close()
-
-		x = np.linspace(0, len(delta_energy), len(delta_energy))
-		plt.plot(x, delta_energy)
-		plt.show()
 
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
@@ -2020,6 +2087,9 @@ class GrayModel_diffusive_walls(object):
 			cell_temperatures.append(copy_subcells)
 
 			elapsed_time.append(current_time() - t0)
+
+		#Save last restart
+		self.save_restart(k+1)
 
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
@@ -2170,28 +2240,27 @@ if __name__ == '__main__':
 	os.chdir(array_folder)
 
 	#PARAMETERS
-	Lx = 500e-9
+	Lx = 10e-9
 	Ly = 10e-9
 	Lz = 10e-9
 
-	Lx_subcell = 10e-9
+	Lx_subcell = 0.5e-9
 	Ly_subcell = 10e-9
 	Lz_subcell = 10e-9
 
-	T0 = 200
-	Tf = 100
-	Ti = 150
+	T0 = 11.88
+	Tf = 3
+	Ti = 5
 
-	t_MAX = 2e-9
-	dt = 1e-12
+	t_MAX = 10e-9
+	dt = 0.1e-12
 
-	W = 500
+	W = 0.05
 	every_flux = 5
-	every_restart = 1000
 
+	every_restart = 1000
 	init_restart = False
 	folder_restart = 'restart_0'
-
 	folder_outputs = 'PROVA'
 
 	MFP = np.load('MFP_ge.npy')

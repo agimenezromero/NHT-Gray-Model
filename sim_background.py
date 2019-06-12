@@ -8,7 +8,7 @@ current_time = lambda: round(time.time(), 2)
 												#PARAMETERS										 		 #
 ##########################################################################################################
 
-Lx = 200e-9
+Lx = 500e-9
 Ly = 10e-9
 Lz = 10e-9
 
@@ -16,14 +16,14 @@ Lx_subcell = 10e-9
 Ly_subcell = 10e-9
 Lz_subcell = 10e-9
 
-T0 = 300
-Tf = 280
-Ti = 290
+T0 = 200
+Tf = 100
+Ti = 150
 
-t_MAX = 1000e-12
+t_MAX = 2e-9
 dt = 1e-12
 
-W = 50
+W = 500
 every_flux = 5
 every_restart = 1000
 

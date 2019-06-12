@@ -525,74 +525,6 @@ class GrayModel(object):
 
 		return self.r, self.v, self.E, self.v_avg, self.w_avg, self.C_V, self.MFP
 
-	def diffusive_boundary(self, i):
-
-		y_wall = False
-		z_wall = False
-
-		if self.r[i][0] >= self.Lx or self.r[i][0] < 0:
-			self.v[i][0] *= -1.
-
-			if self.r[i][0] >= self.Lx:
-				self.r[i][0] = self.Lx - 0.01*self.Lx
-			else:
-				self.r[i][0] = 0
-
-		if self.r[i][1] >= self.Ly or self.r[i][1] < 0:
-			y_wall = True
-
-			if self.r[i][1] > self.Ly or self.r[i][1] < 0:
-				self.v[i][1] *= -1.
-
-			if self.r[i][1] > self.Ly:
-				delta_y = self.r[i][1] - self.Ly
-				self.r[i][1] = self.r[i][1] - 2*delta_y
-			else:
-				delta_y = -self.r[i][1] 
-				self.r[i][1] = delta_y
-
-		if self.r[i][2] >= self.Lz or self.r[i][2] < 0:
-			z_wall = True
-
-			if self.r[i][2] > self.Lz:
-				delta_z = self.r[i][2] - self.Lz
-				self.r[i][2] = self.r[i][2] - 2*delta_z
-			else:
-				delta_z = -self.r[i][2] 
-				self.r[i][2] = delta_z
-
-		if y_wall or z_wall :
-			if y_wall and not z_wall:
-				x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-				y = int(self.N_subcells_y - 1)
-				z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
-			if not y_wall and z_wall:
-				x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-				y = int(self.r[i][1] / self.Lz * self.N_subcells_z)
-				z = int(self.Lz - 1)
-
-			if y_wall and z_wall:
-				x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-				y = int(self.Ly - 1)
-				z = int(self.Lz - 1)
-
-			v_polar = np.random.random((1, 2))
-
-			self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
-			self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
-			self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
-
-			current_T = self.subcell_Ts[x][y][z]
-			pos = self.find_T(current_T, self.Ts)
-
-			self.v[i] *= self.v_ge[pos]
-
-			self.v_avg[i] = self.v_ge[pos]
-			self.w_avg[i] = self.w_ge[pos]
-			self.E[i] = self.E_ge[pos]
-			self.C_V[i] = self.CV_ge[pos]
-			self.MFP[i] = self.MFP_ge[pos]
-
 	def check_boundaries(self, i):
 
 		if self.r[i][0] >= self.Lx or self.r[i][0] < 0:
@@ -679,9 +611,9 @@ class GrayModel(object):
 
 					v_polar = np.random.random((1, 2))
 
-					self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
-					self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
-					self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
+					self.v[i][0] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.cos(v_polar[:,1] * 2 * np.pi)) 
+					self.v[i][1] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.sin(v_polar[:,1] * 2 * np.pi)) 
+					self.v[i][2] = np.cos(np.cos(2*v_polar[:,0]-1)**(-1))
 
 					current_T = self.subcell_Ts[x][y][z]
 					pos = self.find_T(current_T, self.Ts)
@@ -704,24 +636,15 @@ class GrayModel(object):
 		return scattering_events
 
 	def energy_conservation(self, delta_E):
-		for i in range(self.N_subcells_x):
+		for i in range(1, self.N_subcells_x - 1):
 			for j in range(self.N_subcells_y):
 				for k in range(self.N_subcells_z):
 
-					if delta_E[i][j][k] > self.E_max_ge: #Deletion of phonons
-						E_sobrant = delta_E[i][j][k]
+					current_energy = delta_E[i][j][k]
 
-						T = self.subcell_Ts[i][j][k]
-						pos_T = self.find_T(T, self.Ts)
+					if current_energy > self.E_max_ge:
 
-						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
-
-						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to delete
-
-						if N_phonons != 0:
-
-							array_position_phonons_ith_subcell = []
-							counter = 0
+						while current_energy > self.E_max_ge: #Delete phonons
 
 							for l in range(len(self.r)):
 
@@ -729,22 +652,22 @@ class GrayModel(object):
 								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
 								z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
 
-								if counter == N_phonons: 
-										break
-
 								if x == i and y == j and z == k : #is in the i_th subcell
 
-									counter += 1
-									array_position_phonons_ith_subcell.append(l) #position in self.r array
+									current_energy -= self.E[l] * self.W
 
-							self.r = np.delete(self.r, array_position_phonons_ith_subcell, 0)
-							self.v = np.delete(self.v, array_position_phonons_ith_subcell, 0)
-							self.E = np.delete(self.E, array_position_phonons_ith_subcell, 0)
-							self.v_avg = np.delete(self.v_avg, array_position_phonons_ith_subcell, 0)
-							self.w_avg = np.delete(self.w_avg, array_position_phonons_ith_subcell, 0)
-							self.C_V = np.delete(self.C_V, array_position_phonons_ith_subcell, 0)
-							self.MFP = np.delete(self.MFP, array_position_phonons_ith_subcell, 0)
-							self.scattering_time = np.delete(self.scattering_time, array_position_phonons_ith_subcell, 0)
+									self.r = np.delete(self.r, l, 0)
+									self.v = np.delete(self.v, l, 0)
+									self.E = np.delete(self.E, l, 0)
+									self.v_avg = np.delete(self.v_avg, l, 0)
+									self.w_avg = np.delete(self.w_avg, l, 0)
+									self.C_V = np.delete(self.C_V, l, 0)
+									self.MFP = np.delete(self.MFP, l, 0)
+									self.scattering_time = np.delete(self.scattering_time, l, 0)
+
+									break
+
+							break
 
 					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
 						E_sobrant = -delta_E[i][j][k]
@@ -1021,7 +944,6 @@ class GrayModel(object):
 
 				for i in range(len(self.r)):
 					self.check_boundaries(i)
-					#self.diffusive_boundary(i)
 
 					flux_k += self.calculate_flux(i, previous_r)
 
@@ -1032,7 +954,6 @@ class GrayModel(object):
 
 				for i in range(len(self.r)):
 					self.check_boundaries(i)
-					#self.diffusive_boundary(i)
 
 			self.re_init_boundary()
 
@@ -1229,7 +1150,6 @@ class GrayModel(object):
 
 			for i in range(len(self.r)):
 				self.check_boundaries(i)
-				#self.diffusive_boundary(i)
 
 			self.re_init_boundary()
 
@@ -1265,8 +1185,6 @@ class GrayModel(object):
 		#ani.save('animation.mp4', fps=20, writer="ffmpeg", codec="libx264")
 		plt.legend(loc = 'upper right')
 		plt.show()
-
-		return self.r, self.subcell_Ts
 
 	def animation_from_restart(self):
 
@@ -1531,9 +1449,9 @@ class GrayModel_diffusive_walls(object):
 
 			v_polar = np.random.random((1, 2))
 
-			self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
-			self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
-			self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
+			self.v[i][0] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.cos(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][1] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.sin(v_polar[:,1] * 2 * np.pi)) 
+			self.v[i][2] = np.cos(np.cos(2*v_polar[:,0]-1)**(-1))
 
 			current_T = self.subcell_Ts[x][y][z]
 			pos = self.find_T(current_T, self.Ts)
@@ -1602,9 +1520,9 @@ class GrayModel_diffusive_walls(object):
 
 					v_polar = np.random.random((1, 2))
 
-					self.v[i][0] = (np.sin(v_polar[:,0] * np.pi) * np.cos(v_polar[:,1] * 2 * np.pi)) 
-					self.v[i][1] = (np.sin(v_polar[:,0] * np.pi) * np.sin(v_polar[:,1] * 2 * np.pi)) 
-					self.v[i][2] = np.cos(v_polar[:,0] * np.pi)
+					self.v[i][0] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.cos(v_polar[:,1] * 2 * np.pi)) 
+					self.v[i][1] = (np.sin(np.cos(2*v_polar[:,0]-1)**(-1)) * np.sin(v_polar[:,1] * 2 * np.pi)) 
+					self.v[i][2] = np.cos(np.cos(2*v_polar[:,0]-1)**(-1))
 
 					current_T = self.subcell_Ts[x][y][z]
 					pos = self.find_T(current_T, self.Ts)
@@ -2252,7 +2170,7 @@ if __name__ == '__main__':
 	os.chdir(array_folder)
 
 	#PARAMETERS
-	Lx = 200e-9
+	Lx = 500e-9
 	Ly = 10e-9
 	Lz = 10e-9
 
@@ -2260,14 +2178,14 @@ if __name__ == '__main__':
 	Ly_subcell = 10e-9
 	Lz_subcell = 10e-9
 
-	T0 = 300
-	Tf = 280
-	Ti = 290
+	T0 = 200
+	Tf = 100
+	Ti = 150
 
-	t_MAX = 1000e-12
+	t_MAX = 2e-9
 	dt = 1e-12
 
-	W = 50
+	W = 500
 	every_flux = 5
 	every_restart = 1000
 
@@ -2277,7 +2195,7 @@ if __name__ == '__main__':
 	folder_outputs = 'PROVA'
 
 	MFP = np.load('MFP_ge.npy')
-	N = np.load('N_ge.npy') *Lx*Ly*Lz
+	N = np.load('N_ge.npy') *Lx_subcell*Ly_subcell*Lz_subcell
 	v_avg = np.load('v_ge.npy')
 	Ts = np.load('T_ge.npy')
 	E = np.load('E_ge.npy')
@@ -2290,5 +2208,5 @@ if __name__ == '__main__':
 
 	gas = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 
-	gas.simulation()
-	
+	#gas.simulation(every_restart=every_restart)
+	gas.animation()

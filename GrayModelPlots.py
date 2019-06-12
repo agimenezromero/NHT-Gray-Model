@@ -912,8 +912,8 @@ folders_conductivity_T_high_restart = ['Ballistic_to_diffusive_high_T/Lx_1_nm/la
 #Ballistic_to_diffusive_Lx_scalled(['Ballistic_1D', 'Lx_100_nm/OUTPUTS', 'Lx_500_nm/OUTPUTS', 'Lx_1000_nm/OUTPUTS'])
 #Ballistic_to_diffusive_high_T_scalled(folders_diffusive_high_T)
 
-all_plots('E_tot_merda/1_ns/OUTPUTS')
-#plots_restart('restart_126000', 126000)
+#all_plots('/DIFFUSIVE/500_nm/OUTPUTS')
+plots_restart('/DIFFUSIVE/500_nm/restart_1000', 1000)
 
 #conductivity_plots(folders_conductivity_T_high)
 #conductivity_plots_nosim(folders_conductivity_T_high_restart)

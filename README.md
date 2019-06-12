@@ -36,11 +36,14 @@ Table of contents
 - SciPy
 
 # Usage
-First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been implemented. For the study in the final degree project germanium and silicon have been simulated, so there are two simple functions developed to create and storage the corresponding arrays easily: `save_arrays_germanium(init_T, final_T, n)`, `save_arrays_silicon(init_T, final_T, n)`.
+First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been developed. For the study in the final degree project germanium and silicon have been simulated, so two simple functions have been implemented to create and storage the corresponding arrays easily: 
 
-- `ìnit_T` (float) - Initial temperature for the computed properties.
-- `final_T` (float) - Final temperature for the computed properties.
-- `n` (int) - Number of points between initial and final temperatures.
+* `save_arrays_germanium(init_T, final_T, n)` 
+* `save_arrays_silicon(init_T, final_T, n)`.
+
+  - `ìnit_T` (float) - Initial temperature for the computed properties.
+  - `final_T` (float) - Final temperature for the computed properties.
+  - `n` (int) - Number of points between initial and final temperatures.
 
 To initialise both of the available simulation classes (`GrayMode`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 

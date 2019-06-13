@@ -80,6 +80,7 @@ To create and storage the input arrays needed by the simulation software the `Th
 
 ```python
 from GrayModelClasses import *
+#also from GrayModelClasses import save_arrays_germanium, save_arrays_silicon
 
 init_T = 1
 final_T = 500
@@ -97,6 +98,7 @@ To perform a new simulation, all the system parameters must be initialised.
 
 ```python
 from GrayModelClasses import *
+#also from GrayModelClasses import GrayModel
 
 Lx = 10e-9
 Ly = 10e-9

@@ -160,18 +160,32 @@ def Ballistic_regime_1D(folder):
 	#Average for each subcell in equilibrium
 
 	average_T_cells = []
+	desv_std = []
+	desv_std_neg = []
 	equil = 7500
 
 	for i in range(int(round(Lx/Lx_subcell, 0))):
-		average_T_cells.append(np.mean(T_cells[equil : , i]))
+		average_T_cells.append(np.nanmean(T_cells[equil : , i]))
+		desv_std.append(np.nanstd(T_cells[equil : , i, 0, 0]))
+		desv_std_neg.append(-np.nanstd(T_cells[equil : , i, 0, 0]))
 
-	total_avg_T = np.mean(T_cells[equil:])
+	max_errror = np.max(desv_std)
 
-	#plt.plot(x, average_T_cells, ls='-', color='k', marker='s', label='Average cell T %.2f' % total_avg_T)
-	plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
-	plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ps' % float(time[1000]))
-	plt.plot(x, T_cells[5000][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='o', label='T at %.2f ps' % float(time[5000]))
+	y_balistic = np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x))
+
+	print('Max error:', max_errror)
+
+	total_avg_T = np.nanmean(T_cells[equil:])
+
+	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell T %.2f' % total_avg_T)
+
+	#plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
+	#plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ns' % float(time[1000] * 1e-3))
+	#plt.plot(x, T_cells[5000][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='o', label='T at %.2f ns' % float(time[5000]* 1e-3))
 	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='g', marker='s', label='T at %.2f ns' % float(time[-1] * 1e-3))
+
+	plt.plot(x, desv_std + y_balistic, ls='--', color='b', label='Standard Deviation')
+	plt.plot(x, desv_std_neg + y_balistic, ls='--', color='b')
 
 	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), 
 		balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k', label='Ballistic regime')
@@ -258,16 +272,25 @@ def Diffusive_regime_1D(folder_filename):
 	#Average for each subcell in equilibrium
 
 	average_T_cells = []
+	desv_std = []
+	desv_std_neg = []
 	equil = 2000
 
 	for i in range(int(round(Lx/Lx_subcell, 0))):
-		average_T_cells.append(np.mean(T_cells[equil : , i]))
+		average_T_cells.append(np.nanmean(T_cells[equil : , i, 0, 0]))
+		desv_std.append(np.nanstd(T_cells[equil : , i, 0, 0]))
+		desv_std_neg.append(-np.nanstd(T_cells[equil : , i, 0, 0]))
 
+	max_errror = np.max(desv_std)
 
-	#plt.plot(x, average_T_cells, ls='-', color='purple', marker='None', label='Average cell T')
-	plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[0]))
-	plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ns' % float(time[1000]*1e-3))
-	plt.plot(x, T_cells[2000][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='o', label='T at %.2f ns' % float(time[2000]*1e-3))
+	print('Max error:', max_errror)
+
+	#markerfacecolor='None'
+	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell T')
+	plt.plot(x, desv_std + diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), ls='-', color='b', label='Standard Deviation')
+	plt.plot(x, desv_std_neg + diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), ls='-', color='b')
+	#plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ns' % float(time[1000]*1e-3))
+	#plt.plot(x, T_cells[2000][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='o', label='T at %.2f ns' % float(time[2000]*1e-3))
 	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='g', marker='s', label='T at %.2f ns' % float(time[-1]*1e-3))
 
 	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), 
@@ -284,12 +307,12 @@ def Diffusive_regime_1D(folder_filename):
 def Ballistic_to_diffusive_1D_roughness(folder_filenames):
 	plt.figure(figsize=(10, 6))
 
-	colors = ['y','r', 'b', 'purple', 'g']
-	markers = ['x','*', 'o', '^', 's']
+	colors = ['y','r', 'b', 'purple', 'g', 'c']
+	markers = ['x','*', 'o', '^', 's', 'D']
 
 	k = 0
 
-	current_dir_now = current_dir + '/Ballistic_to_diffusive_boundary'
+	current_dir_now = current_dir + '/Ballistic_to_diffusive_roughness'
 
 	for name in folder_filenames:
 
@@ -315,9 +338,9 @@ def Ballistic_to_diffusive_1D_roughness(folder_filenames):
 		equil = 7500
 
 		for i in range(int(round(Lx/Lx_subcell, 0))):
-			average_T_cells.append(np.mean(T_cells[equil : , i]))
+			average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-		total_avg_T = np.mean(T_cells[equil:])
+		total_avg_T = np.nanmean(T_cells[equil:])
 
 		label = r'Diffusive $L_y=L_z=%.f$ nm' % (Ly * 1e9)
 
@@ -343,14 +366,15 @@ def Ballistic_to_diffusive_1D_roughness(folder_filenames):
 	plt.legend()
 	plt.show()
 
-def Ballistic_to_diffusive_Lx(folder_filenames):
+def Ballistic_to_diffusive_1D_roughness_scaled(folder_filenames):
+	plt.figure(figsize=(10, 6))
 
-	colors = ['y','r', 'b', 'g']
-	markers = ['x','*', 'o', 's']
+	colors = ['b','r', 'b', 'purple', 'g', 'c']
+	markers = ['s','^', 'o', '^', 's', 'D']
 
 	k = 0
 
-	current_dir_now = current_dir + '/Ballistic_to_diffusive_Lx'
+	current_dir_now = current_dir + '/Ballistic_to_diffusive_roughness'
 
 	for name in folder_filenames:
 
@@ -368,41 +392,36 @@ def Ballistic_to_diffusive_Lx(folder_filenames):
 		time = np.linspace(0, t_MAX*1e12, int(t_MAX/dt))
 
 		#T plot
-		x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0))) * 1e9
+		N_cells = int(round(Lx/Lx_subcell, 0))
+		x = np.linspace(0, 1, N_cells)
 
 		#Average for each subcell in equilibrium
 
 		average_T_cells = []
-		equil = 5000
+		equil = 7500
 
 		for i in range(int(round(Lx/Lx_subcell, 0))):
-			average_T_cells.append(np.mean(T_cells[equil : , i]))
+			average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-		total_avg_T = np.mean(T_cells[equil:])
+		total_avg_T = np.nanmean(T_cells[equil:])
 
-		label = r'$t=%.f$ ns' % (t_MAX * 1e9)
+		label = r'Diffusive $L_y=L_z=%.f$ nm and $L_x=%.f$ nm' % (Ly * 1e9, Lx * 1e9)
 
-		plt.figure(figsize=(10, 6))
-
-		plt.plot(x, average_T_cells, ls='-', color='g', marker='None', label='Average cell T')
-		plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='None', 
-			label=label)
-
-		plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), 
-			balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k', label='Ballistic regime')
-		plt.plot(x, diffussive_T(x*1e-9, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), color='k', label='Diffusive regime')
+		plt.plot(x, average_T_cells, ls='-', color=colors[k], marker=markers[k], label=label)
+		#plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color=colors[k], marker=markers[k], label=label)
 	
-		plt.title('Steady state temperature')
-		plt.xlabel('Domain length [nm]')
-		plt.ylabel('Temperature [K]')
-
-		plt.legend()
-		plt.show()
-
 		k += 1
 
-	#plt.suptitle('Domain temperature evolution')
-	#plt.show()
+	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), 
+			balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k', label='Ballistic regime')
+	plt.plot(x, diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), 1), color='k', label='Diffusive regime')
+
+	plt.title('Steady state temperature')
+	plt.xlabel(r'$x/L_x$')
+	plt.ylabel('Temperature [K]')
+
+	plt.legend(loc='lower left')
+	plt.show()
 
 def all_plots(folder):
 	os.chdir(current_dir + '/' + folder)
@@ -482,15 +501,15 @@ def all_plots(folder):
 	#Average for each subcell in equilibrium
 
 	average_T_cells = []
-	equil = 7500
+	equil = 500
 
 	for i in range(int(round(Lx/Lx_subcell, 0))):
-		average_T_cells.append(np.mean(T_cells[equil : , i]))
+		average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-	total_avg_T = np.mean(T_cells[equil:])
+	total_avg_T = np.nanmean(T_cells[equil:])
 
-	#plt.plot(x, average_T_cells, ls='-', color='k', marker='s', label='Average cell T %.2f' % total_avg_T)
-	plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
+	plt.plot(x, average_T_cells, ls='-', color='k', marker='s', label='Average cell T %.2f' % total_avg_T)
+	#plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
 	#plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ps' % float(time[1000]))
 	#plt.plot(x, T_cells[5000][:, int(Ly / 2), int(Lz/2)], ls='-', color='b', marker='o', label='T at %.2f ps' % float(time[5000]))
 	plt.plot(x, T_cells[-1][:, int(Ly / 2), int(Lz/2)], ls='-', color='g', marker='s', label='T at %.2f ns' % float(time[-1] * 1e-3))
@@ -603,9 +622,9 @@ def plots_restart(folder, t_max):
 	equil = 7500
 
 	for i in range(int(round(Lx/Lx_subcell, 0))):
-		average_T_cells.append(np.mean(T_cells[equil : , i]))
+		average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-	total_avg_T = np.mean(T_cells[equil:])
+	total_avg_T = np.nanmean(T_cells[equil:])
 
 	plt.plot(x, average_T_cells, ls='-', color='k', marker='s', label='Average cell T %.2f' % total_avg_T)
 	plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
@@ -623,6 +642,8 @@ def plots_restart(folder, t_max):
 
 	plt.legend()
 	plt.show()
+
+	print('\n\nAvg_flux:', np.nanmean(flux))
 
 	plt.plot(time_flux, flux, ls='--', color='c', label='')
 	plt.title('Flux')
@@ -643,7 +664,11 @@ def plots_restart(folder, t_max):
 def conductivity_plots(folders):
 
 	conductivities = []
+	conductances = []
+	thermal_resistances = []
 	lengths = []
+
+	plt.figure(figsize=(12,6))
 
 	for name in folders:
 
@@ -662,18 +687,40 @@ def conductivity_plots(folders):
 		time = np.linspace(0, t_MAX*1e12, int(round(t_MAX/dt, 0)))
 		time_flux = np.linspace(0, t_MAX*1e12, int(round(t_MAX/(dt * every_flux))))
 
-		flux_avg = np.mean(flux)
+		flux_avg = np.nanmean(flux[0:]) #* 5 #(*5 pq em vaig equivocar en tenir en compte el every flux XD)
 		delta_T = abs(T0 - Tf)
 		A = Lz * Ly
 
 		conductivity = flux_avg * Lx / (delta_T)
+		conductance = conductivity / Lx
+		thermal_resistance = (Lx / (conductivity * A))
 
 		conductivities.append(conductivity)
+		conductances.append(conductance)
+		thermal_resistances.append(thermal_resistance)
 		lengths.append(Lx*1e9)
 
+	plt.subplot(1,3,1)
 	plt.plot(lengths, conductivities, ls='', marker='s', color='r')
 	
+	plt.title('Conductivity')
 	plt.xlabel('Length [nm]')
+	plt.ylabel(r'Conductivity [$W\cdot m^{-1}\cdot K^{-1}$]')
+
+	plt.subplot(1,3,2)
+	plt.plot(lengths, conductances, ls='', marker='s', color='r')
+
+	plt.title('Conductance')
+	plt.xlabel('Length [nm]')
+	plt.ylabel(r'Conductance [$W/K$]')
+
+	plt.subplot(1,3,3)
+	plt.plot(lengths, thermal_resistances, ls='', marker='s', color='r')
+
+	plt.title('Thermal resistance')
+	plt.xlabel('Length [nm]')
+	plt.ylabel(r'Conductance [$K\cdot m^2\cdot W^{-1}$]')
+
 	plt.show()
 
 def conductivity_plots_nosim(folders):
@@ -707,14 +754,14 @@ def conductivity_plots_nosim(folders):
 	plt.xlabel('Length [nm]')
 	plt.show()
 
-def Ballistic_to_diffusive_Lx_scalled(folder_filenames):
+def Ballistic_to_diffusive_low_T_scalled(folder_filenames):
 
-	colors = ['y','r', 'b', 'g']
-	markers = ['x','*', 'o', 's']
+	colors = ['y','r', 'b', 'g', 'purple']
+	markers = ['x','*', 'o', 's', '^']
 
 	k = 0
 
-	current_dir_now = current_dir + '/Ballistic_to_diffusive_Lx'
+	current_dir_now = current_dir + '/Ballistic_to_diffusive_low_T'
 
 	plt.figure(figsize=(10, 6))
 
@@ -744,9 +791,9 @@ def Ballistic_to_diffusive_Lx_scalled(folder_filenames):
 		equil = 5000
 
 		for i in range(int(round(Lx/Lx_subcell, 0))):
-			average_T_cells.append(np.mean(T_cells[equil : , i]))
+			average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-		total_avg_T = np.mean(T_cells[equil:])
+		total_avg_T = np.nanmean(T_cells[equil:])
 
 		label = r'$t=%.f$ ns' % (t_MAX * 1e9)
 
@@ -807,9 +854,9 @@ def Ballistic_to_diffusive_high_T_scalled(folder_filenames):
 		equil = 1000
 
 		for i in range(int(round(Lx/Lx_subcell, 0))):
-			average_T_cells.append(np.mean(T_cells[equil : , i]))
+			average_T_cells.append(np.nanmean(T_cells[equil : , i]))
 
-		total_avg_T = np.mean(T_cells[equil:])
+		total_avg_T = np.nanmean(T_cells[equil:])
 
 		label = r'$t=%.f$ ns' % (t_MAX * 1e9)
 
@@ -886,34 +933,33 @@ def animated_ballistic_1D():
 
 folders_diffusive = ['Diffusive_1D_T_low', 'Diffusive_1D_T_high/OUTPUTS', 'Diffusive_1D_T_high/OUTPUTS_2']
 
-folders_ballistic = ['Ballistic_1D', 'Ly_10_nm/OUTPUTS', 'Ly_5_nm/OUTPUTS', 'Ly_1_nm/OUTPUTS', 'Ly_0.5_nm/OUTPUTS',]
+folders_ballistic = ['Ballistic_1D/OUTPUTS', 'Ly_10_nm/OUTPUTS', 'Ly_5_nm/OUTPUTS', 'Ly_1_nm/OUTPUTS', 'Ly_0.1_nm/OUTPUTS']
 
-folders_conductivity = ['Ballistic_to_diffusive_Lx/Lx_100_nm/OUTPUTS', 'Ballistic_to_diffusive_Lx/Lx_500_nm/OUTPUTS',
-						'Ballistic_to_diffusive_Lx/Lx_1000_nm/OUTPUTS']
+folders_conductivity = ['Ballistic_to_diffusive_low_T/10_nm/OUTPUTS', 'Ballistic_to_diffusive_low_T/50_nm/OUTPUTS', 'Ballistic_to_diffusive_low_T/100_nm/OUTPUTS',
+						'Ballistic_to_diffusive_low_T/500_nm/OUTPUTS', 'Ballistic_to_diffusive_low_T/1000_nm/OUTPUTS', 'Ballistic_to_diffusive_low_T/1200_continue/OUTPUTS']
 
-folders_diffusive_high_T = ['Lx_0.1_nm/OUTPUTS', 'Lx_1_nm/OUTPUTS', 'Lx_10_nm/OUTPUTS', 'Lx_50_nm/OUTPUTS', 
-							'Lx_100_nm/OUTPUTS']
+folders_diffusive_high_T = ['1_nm/OUTPUTS', '5_nm/OUTPUTS', '100_nm/OUTPUTS', 
+							'300_nm/OUTPUTS', '500_nm/OUTPUTS']
 
-folders_conductivity_T_high = ['Ballistic_to_diffusive_high_T/Lx_1_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_10_nm/OUTPUTS',
-						'Ballistic_to_diffusive_high_T/Lx_50_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_100_nm/OUTPUTS',
-						'Ballistic_to_diffusive_high_T/Lx_0.1_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_200_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_300_nm/OUTPUTS',
-						'Ballistic_to_diffusive_high_T/Lx_400_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_450_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T/Lx_500_nm/OUTPUTS']
+folders_conductivity_T_high = ['Ballistic_to_diffusive_high_T_flux_be/1_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T_flux_be/5_nm/OUTPUTS',
+						'Ballistic_to_diffusive_high_T_flux_be/100_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T_flux_be/300_nm/OUTPUTS',
+						'Ballistic_to_diffusive_high_T_flux_be/500_nm/OUTPUTS', 'Ballistic_to_diffusive_high_T_flux_be/600_nm/OUTPUTS']
 
 folders_conductivity_T_high_restart = ['Ballistic_to_diffusive_high_T/Lx_1_nm/last_restart', 'Ballistic_to_diffusive_high_T/Lx_10_nm/last_restart',
 						'Ballistic_to_diffusive_high_T/Lx_50_nm/last_restart', 'Ballistic_to_diffusive_high_T/Lx_100_nm/last_restart',
 						'Ballistic_to_diffusive_high_T/Lx_0.1_nm/last_restart', 'Ballistic_to_diffusive_high_T/Lx_200_nm/last_restart', 'Ballistic_to_diffusive_high_T/Lx_300_nm/last_restart',
 						'Ballistic_to_diffusive_high_T/Lx_400_nm/last_restart', 'Ballistic_to_diffusive_high_T/Lx_500_nm/last_restart']
 
-#Ballistic_regime_1D('Ballistic_boundary_diff_Ly_1_nm')
-#Diffusive_regime_1D('Ballistic_to_diffusive_high_T/Lx_100_nm/OUTPUTS')
+#Ballistic_regime_1D('Ballistic_1D/OUTPUTS')
+#Diffusive_regime_1D('Diffusive_1D/OUTPUTS')
 
-Ballistic_to_diffusive_1D_roughness(folders_ballistic)
-#Ballistic_to_diffusive_Lx(['Ballistic_1D', 'Lx_100_nm/OUTPUTS', 'Lx_500_nm/OUTPUTS', 'Lx_1000_nm/OUTPUTS'])
-#Ballistic_to_diffusive_Lx_scalled(['Ballistic_1D', 'Lx_100_nm/OUTPUTS', 'Lx_500_nm/OUTPUTS', 'Lx_1000_nm/OUTPUTS'])
+#Ballistic_to_diffusive_1D_roughness(folders_ballistic)
+#Ballistic_to_diffusive_1D_roughness_scaled(['Ly_1_nm/OUTPUTS', 'Ly_1_Lx_100/OUTPUTS']) #Fer més simulacio de Lx 100nm a partir del restart
+Ballistic_to_diffusive_low_T_scalled(['10_nm/OUTPUTS', '500_nm/OUTPUTS', '100_nm/OUTPUTS', '500_nm/OUTPUTS', '1000_nm/OUTPUTS'])
 #Ballistic_to_diffusive_high_T_scalled(folders_diffusive_high_T)
 
-#all_plots('/Ballistic_to_diffusive_low_T/Lx_1000_nm/OUTPUTS')
-#plots_restart('/DIFFUSIVE/500_nm/restart_1000', 1000)
+#all_plots('Ballistic_to_diffusive_high_T/600_nm/OUTPUTS')
+#plots_restart('/Ballistic_to_diffusive_low_T/1200_continue/OUTPUTS', 9000)
 
 #conductivity_plots(folders_conductivity_T_high)
 #conductivity_plots_nosim(folders_conductivity_T_high_restart)

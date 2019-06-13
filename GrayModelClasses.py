@@ -580,9 +580,9 @@ class GrayModel(object):
 			for j in range(self.N_subcells_y):
 				for k in range(self.N_subcells_z):
 
-					#E_N = E_subcells[i][j][k] / N_subcells[i][j][k]
+					E_N = E_subcells[i][j][k] / N_subcells[i][j][k]
 
-					self.subcell_Ts[i][j][k] = self.match_T(E_subcells[i][j][k], self.Etot_ge, self.Ts)
+					self.subcell_Ts[i][j][k] = self.match_T(E_N, self.E_ge, self.Ts)
 
 		return E_subcells, N_subcells
 
@@ -648,9 +648,9 @@ class GrayModel(object):
 
 							for l in range(len(self.r)):
 
-								x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
-								z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
+								x = int((self.r[l][0] / self.Lx) * self.N_subcells_x)
+								y = int((self.r[l][1] / self.Lx) * self.N_subcells_y)
+								z = int((self.r[l][2] / self.Lx) * self.N_subcells_z)
 
 								if x == i and y == j and z == k : #is in the i_th subcell
 
@@ -667,19 +667,15 @@ class GrayModel(object):
 
 									break
 
-							break
 
-					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
-						E_sobrant = -delta_E[i][j][k]
+					if -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
 
-						T = self.subcell_Ts[i][j][k]
-						pos_T = self.find_T(T, self.Ts)
+						while -current_energy > self.E_max_ge:
 
-						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
+							T = self.subcell_Ts[i][j][k]
+							pos_T = self.find_T(T, self.Ts)
 
-						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to create
-
-						if N_phonons != 0:
+							E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T	
 
 							self.r = list(self.r)
 							self.v = list(self.v)
@@ -690,7 +686,7 @@ class GrayModel(object):
 							self.MFP = list(self.MFP)
 							self.scattering_time = list(self.scattering_time)
 
-							self.create_phonons(N_phonons, i, j, k, T)
+							self.create_phonons(1, i, j, k, T)
 
 							self.r = np.array(self.r)
 							self.v = np.array(self.v)
@@ -700,6 +696,8 @@ class GrayModel(object):
 							self.C_V = np.array(self.C_V)
 							self.MFP = np.array(self.MFP)
 							self.scattering_time = np.array(self.scattering_time)
+
+							current_energy += E_phonon_T * self.W
 
 	def re_init_boundary(self): #Eliminar tots i posar tots nous
 		pos_T0 = self.find_T(self.T0, self.Ts)
@@ -922,7 +920,7 @@ class GrayModel(object):
 				self.save_restart(k)
 
 				#Save outputs untill this moment (Inside the restart folder)
-				flux_save = np.array(flux) / (self.Ly * self.Lz * self.dt * self.every_flux)
+				flux_save = np.array(flux) / (self.Ly * self.Lz * self.dt)
 
 				np.save('Energy.npy', Energy)
 				np.save('Phonons.npy', Phonons)
@@ -988,7 +986,7 @@ class GrayModel(object):
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
 
-		flux = np.array(flux) / (self.Ly * self.Lz * self.dt * self.every_flux)
+		flux = np.array(flux) / (self.Ly * self.Lz * self.dt)
 
 		np.save('Energy.npy', Energy)
 		np.save('Phonons.npy', Phonons)
@@ -1546,81 +1544,6 @@ class GrayModel_diffusive_walls(object):
 
 		return scattering_events
 
-	def energy_conservation_old(self, delta_E):
-		for i in range(self.N_subcells_x):
-			for j in range(self.N_subcells_y):
-				for k in range(self.N_subcells_z):
-
-					if delta_E[i][j][k] > self.E_max_ge: #Deletion of phonons
-						E_sobrant = delta_E[i][j][k]
-
-						T = self.subcell_Ts[i][j][k]
-						pos_T = self.find_T(T, self.Ts)
-
-						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
-
-						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to delete
-
-						if N_phonons != 0:
-
-							array_position_phonons_ith_subcell = []
-							counter = 0
-
-							for l in range(len(self.r)):
-
-								x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
-								z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
-
-								if counter == N_phonons: 
-										break
-
-								if x == i and y == j and z == k : #is in the i_th subcell
-
-									counter += 1
-									array_position_phonons_ith_subcell.append(l) #position in self.r array
-
-							self.r = np.delete(self.r, array_position_phonons_ith_subcell, 0)
-							self.v = np.delete(self.v, array_position_phonons_ith_subcell, 0)
-							self.E = np.delete(self.E, array_position_phonons_ith_subcell, 0)
-							self.v_avg = np.delete(self.v_avg, array_position_phonons_ith_subcell, 0)
-							self.w_avg = np.delete(self.w_avg, array_position_phonons_ith_subcell, 0)
-							self.C_V = np.delete(self.C_V, array_position_phonons_ith_subcell, 0)
-							self.MFP = np.delete(self.MFP, array_position_phonons_ith_subcell, 0)
-							self.scattering_time = np.delete(self.scattering_time, array_position_phonons_ith_subcell, 0)
-
-					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
-						E_sobrant = -delta_E[i][j][k]
-
-						T = self.subcell_Ts[i][j][k]
-						pos_T = self.find_T(T, self.Ts)
-
-						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
-
-						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to create
-
-						if N_phonons != 0:
-
-							self.r = list(self.r)
-							self.v = list(self.v)
-							self.v_avg = list(self.v_avg)
-							self.w_avg = list(self.w_avg)
-							self.E = list(self.E)
-							self.C_V = list(self.C_V)
-							self.MFP = list(self.MFP)
-							self.scattering_time = list(self.scattering_time)
-
-							self.create_phonons(N_phonons, i, j, k, T)
-
-							self.r = np.array(self.r)
-							self.v = np.array(self.v)
-							self.v_avg = np.array(self.v_avg)
-							self.w_avg = np.array(self.w_avg)
-							self.E = np.array(self.E)
-							self.C_V = np.array(self.C_V)
-							self.MFP = np.array(self.MFP)
-							self.scattering_time = np.array(self.scattering_time)
-
 	def energy_conservation(self, delta_E):
 		for i in range(1, self.N_subcells_x - 1):
 			for j in range(self.N_subcells_y):
@@ -1634,9 +1557,9 @@ class GrayModel_diffusive_walls(object):
 
 							for l in range(len(self.r)):
 
-								x = int(self.r[i][0] / self.Lx * self.N_subcells_x)
-								y = int(self.r[i][1] / self.Ly * self.N_subcells_y)
-								z = int(self.r[i][2] / self.Lz * self.N_subcells_z)
+								x = int((self.r[l][0] / self.Lx) * self.N_subcells_x)
+								y = int((self.r[l][1] / self.Lx) * self.N_subcells_y)
+								z = int((self.r[l][2] / self.Lx) * self.N_subcells_z)
 
 								if x == i and y == j and z == k : #is in the i_th subcell
 
@@ -1653,19 +1576,15 @@ class GrayModel_diffusive_walls(object):
 
 									break
 
-							break
 
-					elif -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
-						E_sobrant = -delta_E[i][j][k]
+					if -delta_E[i][j][k] > self.E_max_ge: #Production of phonons
 
-						T = self.subcell_Ts[i][j][k]
-						pos_T = self.find_T(T, self.Ts)
+						while -current_energy > self.E_max_ge:
 
-						E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T
+							T = self.subcell_Ts[i][j][k]
+							pos_T = self.find_T(T, self.Ts)
 
-						N_phonons = int(round(E_sobrant / (E_phonon_T * self.W), 0)) #Number of phonons to create
-
-						if N_phonons != 0:
+							E_phonon_T = self.E_ge[pos_T] #Energy per phonon for this subcell T	
 
 							self.r = list(self.r)
 							self.v = list(self.v)
@@ -1676,7 +1595,7 @@ class GrayModel_diffusive_walls(object):
 							self.MFP = list(self.MFP)
 							self.scattering_time = list(self.scattering_time)
 
-							self.create_phonons(N_phonons, i, j, k, T)
+							self.create_phonons(1, i, j, k, T)
 
 							self.r = np.array(self.r)
 							self.v = np.array(self.v)
@@ -1686,6 +1605,8 @@ class GrayModel_diffusive_walls(object):
 							self.C_V = np.array(self.C_V)
 							self.MFP = np.array(self.MFP)
 							self.scattering_time = np.array(self.scattering_time)
+
+							current_energy += E_phonon_T * self.W
 
 	def re_init_boundary(self): #Eliminar tots i posar tots nous
 		pos_T0 = self.find_T(self.T0, self.Ts)
@@ -1908,7 +1829,7 @@ class GrayModel_diffusive_walls(object):
 				self.save_restart(k)
 
 				#Save outputs untill this moment (Inside the restart folder)
-				flux_save = np.array(flux) / (self.Ly * self.Lz * self.dt * self.every_flux)
+				flux_save = np.array(flux) / (self.Ly * self.Lz * self.dt)
 
 				np.save('Energy.npy', Energy)
 				np.save('Phonons.npy', Phonons)
@@ -1974,7 +1895,7 @@ class GrayModel_diffusive_walls(object):
 		if not  os.path.exists(current_dir + '/' + folder_outputs): os.mkdir(current_dir + '/' + folder_outputs)
 		os.chdir(current_dir + '/' + folder_outputs)
 
-		flux = np.array(flux) / (self.Ly * self.Lz * self.dt * self.every_flux)
+		flux = np.array(flux) / (self.Ly * self.Lz * self.dt)
 
 		np.save('Energy.npy', Energy)
 		np.save('Phonons.npy', Phonons)
@@ -2240,22 +2161,22 @@ if __name__ == '__main__':
 	os.chdir(array_folder)
 
 	#PARAMETERS
-	Lx = 10e-9
+	Lx = 600e-9
 	Ly = 10e-9
 	Lz = 10e-9
 
-	Lx_subcell = 0.5e-9
+	Lx_subcell = 10e-9
 	Ly_subcell = 10e-9
 	Lz_subcell = 10e-9
+ 
+	T0 = 150
+	Tf = 100
+	Ti = 125
 
-	T0 = 11.88
-	Tf = 3
-	Ti = 5
+	t_MAX = 50e-9
+	dt = 5e-12
 
-	t_MAX = 10e-9
-	dt = 0.1e-12
-
-	W = 0.05
+	W = 5000
 	every_flux = 5
 
 	every_restart = 1000
@@ -2271,7 +2192,7 @@ if __name__ == '__main__':
 
 	print('Max_tau:', np.max(MFP[find_T(Tf, Ts): find_T(T0, Ts)] / v_avg[find_T(Tf, Ts): find_T(T0, Ts)]))
 	print('MFP max:', MFP[find_T(Tf, Ts)], ' MFP_avg: ', np.mean(MFP[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('v_avg max:', v_avg[find_T(Tf, Ts)])
+	print('v_avg max:', v_avg[find_T(Tf, Ts)], 'dt_max:', Lx_subcell/v_avg[find_T(Tf, Ts)])
 	print('N: ', np.mean(N[find_T(Tf, Ts): find_T(T0, Ts)]))
 	print('E_avg: ', np.mean(E[find_T(Tf, Ts): find_T(T0, Ts)]))
 

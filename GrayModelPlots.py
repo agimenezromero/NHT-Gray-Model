@@ -117,6 +117,9 @@ def Ballistic_regime_1D(folder):
 	temperatures = np.load('Temperatures.npy')
 	elapsed_time = np.load('Elapsed_time.npy')
 
+	print('N avg:', np.mean(N))
+	print('SE avg:', np.mean(scattering_events))
+
 	time = np.linspace(0, t_MAX*1e12, int(t_MAX/dt))
 
 	#Subplots
@@ -177,7 +180,7 @@ def Ballistic_regime_1D(folder):
 
 	total_avg_T = np.nanmean(T_cells[equil:])
 
-	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell T %.2f' % total_avg_T)
+	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell temperature')
 
 	#plt.plot(x, T_cells[0][:, int(Ly / 2), int(Lz/2)], ls='-', color='c', marker='*', label='T at %.2f ps' % float(time[1]))
 	#plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ns' % float(time[1000] * 1e-3))
@@ -231,6 +234,9 @@ def Diffusive_regime_1D(folder_filename):
 	scattering_events = np.load('Scattering_events.npy')
 	temperatures = np.load('Temperatures.npy')
 
+	print('N avg:', np.mean(N))
+	print('SE avg:', np.mean(scattering_events))
+
 	#Subplots
 	plt.figure(figsize=(10, 6))
 
@@ -243,6 +249,8 @@ def Diffusive_regime_1D(folder_filename):
 
 	plt.subplot(2, 2, 2)
 	plt.plot(time, N)
+
+	plt.ticklabel_format(axis='y', style='scientific', scilimits=(-2,2))
 
 	plt.title('Number of phonons evolution')
 	plt.xlabel('Time [ps]')
@@ -257,6 +265,8 @@ def Diffusive_regime_1D(folder_filename):
 
 	plt.subplot(2, 2, 4)
 	plt.plot(time, scattering_events)
+
+	plt.ticklabel_format(axis='y', style='scientific', scilimits=(-2,2))
 
 	plt.title('Scattering events in time')
 	plt.xlabel('Time [ps]')
@@ -286,7 +296,7 @@ def Diffusive_regime_1D(folder_filename):
 	print('Max error:', max_errror)
 
 	#markerfacecolor='None'
-	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell T')
+	plt.plot(x, average_T_cells, ls='', color='r', marker='x', label='Average cell temperature')
 	plt.plot(x, desv_std + diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), ls='-', color='b', label='Standard Deviation')
 	plt.plot(x, desv_std_neg + diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), ls='-', color='b')
 	#plt.plot(x, T_cells[1000][:, int(Ly / 2), int(Lz/2)], ls='-', color='r', marker='^', label='T at %.2f ns' % float(time[1000]*1e-3))
@@ -330,7 +340,7 @@ def Ballistic_to_diffusive_1D_roughness(folder_filenames):
 		time = np.linspace(0, t_MAX*1e12, int(t_MAX/dt))
 
 		#T plot
-		x = np.linspace(0, Lx, int(round(Lx/Lx_subcell, 0)))
+		x = np.linspace(0, Lx*1e9, int(round(Lx/Lx_subcell, 0)))
 
 		#Average for each subcell in equilibrium
 
@@ -357,10 +367,10 @@ def Ballistic_to_diffusive_1D_roughness(folder_filenames):
 
 	plt.plot(x, np.linspace(balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), 
 			balistic_T(float(T_cells[-1][0]), float(T_cells[-1][-1])), len(x)), ls='--', color='k', label='Ballistic regime')
-	plt.plot(x, diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx), color='k', label='Diffusive regime')
+	plt.plot(x, diffussive_T(x, float(T_cells[-1][0]), float(T_cells[-1][-1]), Lx*1e9), color='k', label='Diffusive regime')
 
 	plt.title('Steady state temperature')
-	plt.xlabel('Domain length [m]')
+	plt.xlabel('Domain length [nm]')
 	plt.ylabel('Temperature [K]')
 
 	plt.legend()
@@ -819,7 +829,7 @@ def Ballistic_to_diffusive_low_T_scalled(folder_filenames):
 
 def Ballistic_to_diffusive_high_T_scalled(folder_filenames):
 
-	colors = ['y','r', 'b', 'g', 'c', 'purple']
+	colors = ['y','r', 'b', 'g', 'cyan', 'purple']
 	markers = ['x','*', 'o', 's']
 
 	k = 0
@@ -954,11 +964,11 @@ folders_conductivity_T_high_restart = ['Ballistic_to_diffusive_high_T/Lx_1_nm/la
 #Diffusive_regime_1D('Diffusive_1D/OUTPUTS')
 
 #Ballistic_to_diffusive_1D_roughness(folders_ballistic)
-#Ballistic_to_diffusive_1D_roughness_scaled(['Ly_1_nm/OUTPUTS', 'Ly_1_Lx_100/OUTPUTS']) #Fer més simulacio de Lx 100nm a partir del restart
-Ballistic_to_diffusive_low_T_scalled(['10_nm/OUTPUTS', '500_nm/OUTPUTS', '100_nm/OUTPUTS', '500_nm/OUTPUTS', '1000_nm/OUTPUTS'])
+Ballistic_to_diffusive_1D_roughness_scaled(['Ly_1_nm/OUTPUTS', 'Ly_1_Lx_100/OUTPUTS']) #Fer més simulacio de Lx 100nm a partir del restart
+#Ballistic_to_diffusive_low_T_scalled(['10_nm/OUTPUTS', '500_nm/OUTPUTS', '100_nm/OUTPUTS', '500_nm/OUTPUTS', '1000_nm/OUTPUTS'])
 #Ballistic_to_diffusive_high_T_scalled(folders_diffusive_high_T)
 
-#all_plots('Ballistic_to_diffusive_high_T/600_nm/OUTPUTS')
+#all_plots('Ballistic_to_diffusive_roughness/Ly_0.1_nm/OUTPUTS')
 #plots_restart('/Ballistic_to_diffusive_low_T/1200_continue/OUTPUTS', 9000)
 
 #conductivity_plots(folders_conductivity_T_high)

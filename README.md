@@ -51,7 +51,7 @@ First of all the input arrays dependent on temperature need to be created. To do
   
  Moreover a function to create the input arrays for silicon is also available: `save_arrays_silicon(init_T, final_T, n)`.
  
- Once the arrays are created, they are stored in an automatically created folder named `Input_arrays`. This step only needs to be made one time, unless we decide to change the material (Germanium for Silicon for example). So this program just support one kind of element at a time, which corresponds to that storage in the `Input_arrays` folder.
+ Once the arrays are created, they are stored in an automatically created folder named `Input_arrays`. This step only needs to be made one time, unless we decide to change the material (Germanium for Silicon for example). So this program just support one kind of element at a time, which corresponds to the one storage in the `Input_arrays` folder.
  
 ## Simulation classes initialisation
 
@@ -139,7 +139,7 @@ gray_model.simulation(every_restart, folder_outputs)
 
 ## Simulation from restart
 
-To run a simulation from a restart only the `init_restart` and `restart_folder` are needed to initialise the class. If the class is initialized with some of the other arguments of the exemple above they will be simply ignored.
+To run a simulation from a restart only the `init_restart` and `restart_folder` are needed to initialise the class. If the class is initialized with some of the other arguments of the exemple above they will be simply ignored. (We set the regime temperature to 'high' here for consistency with the restart example script in the Example folder).
 
 ```python
 from GrayModelLibrary import *

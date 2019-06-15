@@ -234,6 +234,8 @@ Some of the examples above reported have been included in the [Examples](https:/
 
 If you run one of the simulation scripts restart folders and, at the end of the simulation, an output folder will be created. The output folder contains compressed .npy arrays of all the relevant magnitudes calculated in the simulation. These arrays can be loaded using numpy and ploted with matplotlib easily.
 
+A simple plot script (`GrayModelPlots.py`) has been included in the project, which implements some functions to plot the basic magnitudes computed during the simulation. 
+
 # Authors
 * **A. Giménez-Romero**
 

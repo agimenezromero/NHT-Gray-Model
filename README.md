@@ -1,10 +1,10 @@
-# Nanoscale Heat Transport - Gray Model approach
+# Nanoscale Heat Transport - Gray Model
 Python little library to simulate nanoscale hat transport from the Gray Model approach. It has been used to study nanoscale heat transport in the following final degree project: https://github.com/agimenezromero/NHT-Gray-Model/tree/master/Final%20Degree%20Project
 
 # Overview
 The aim of this program is to simulate thermal transport at nanoscale. The method used is known as the Gray Model, which considers that phonon properties (shuch as energy, average velocity, average frequency...) are based only on local sub-cell temperature. 
 
-Two simulation types have been implemented:
+Two main simulation classes have been implemented:
 
 1. `GrayModel` : Considers specular reflection with the domain walls.
 2. `GrayModel_diffusive_walls` : Considers diffusive reflection with the domain walls.
@@ -18,7 +18,7 @@ Table of contents
    * [Overview](#overview)
    * [Table of contents](#table-of-contents)
    * [Requeriments](#requeriments)
-   * [Usage](#usage)
+   * [Usage and documentation](#usage-and-documentation)
    * [Examples](#examples)
        - [Create input arrays](#create-input-arrays)
        - [New simulation](#new-simulation)
@@ -34,7 +34,7 @@ Table of contents
 - Matplotlib
 - SciPy
 
-# Usage
+# Usage and documentation
 First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been developed. For the study in the final degree project germanium and silicon have been simulated, so two simple functions have been implemented to create and storage the corresponding arrays easily: 
 
 * `save_arrays_germanium(init_T, final_T, n)` 
@@ -44,7 +44,7 @@ First of all the input arrays dependent on temperature need to be created. To do
   - `final_T` (float) - Final temperature for the computed properties.
   - `n` (int) - Number of points between initial and final temperatures.
 
-To initialise both of the available simulation classes (`GrayMode`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
+To initialise both of the available simulation classes (`GrayModel`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 
 - `Lx` (float) - Domain lenght (x-direction).
 - `Ly` (float) - Domain width (y-direction).

@@ -153,14 +153,14 @@ def save_arrays_germanium(init_T, final_T, n):
 	properties = ThermalProperties(init_T, final_T, n, maximum_freqs_ge, vs_ge, cs_ge, omegas_0_ge, k_bulk_ge, 'Germanium')
 	N, E, w, v, CV, MFP, E_tot, T = properties.fill_arrays()
 
-	np.save('N', N)
-	np.save('E', E)
-	np.save('w', w)
-	np.save('v', v)
-	np.save('CV', CV)
-	np.save('MFP', MFP)
-	np.save('Etot', E_tot)
-	np.save('T', T)
+	np.save('N_input.npy', N)
+	np.save('E_input.npy', E)
+	np.save('w_input.npy', w)
+	np.save('v_input.npy', v)
+	np.save('CV_input.npy', CV)
+	np.save('MFP_input.npy', MFP)
+	np.save('Etot_input.npy', E_tot)
+	np.save('T_input.npy', T)
 
 def save_arrays_silicon(init_T, final_T, n):
 
@@ -169,14 +169,14 @@ def save_arrays_silicon(init_T, final_T, n):
 	properties = ThermalProperties(init_T, final_T, n, maximum_freqs_si, vs_si, cs_si, omegas_0_si, k_bulk_si, 'Silicon')
 	N, E, w, v, CV, MFP, E_tot, T = properties.fill_arrays()
  
-	np.save('N', N)
-	np.save('E', E)
-	np.save('w', w)
-	np.save('v', v)
-	np.save('CV', CV)
-	np.save('MFP', MFP)
-	np.save('Etot', E_tot)
-	np.save('T', T)
+	np.save('N_input.npy', N)
+	np.save('E_input.npy', E)
+	np.save('w_input.npy', w)
+	np.save('v_input.npy', v)
+	np.save('CV_input.npy', CV)
+	np.save('MFP_input.npy', MFP)
+	np.save('Etot_input.npy', E_tot)
+	np.save('T_input.npy', T)
 
 ############################################
 #										   #
@@ -426,16 +426,16 @@ class GrayModel(object):
 		os.chdir(array_folder)
 
 		#Germanium
-		self.N_ge = np.load('N.npy')
-		self.E_ge = np.load('E.npy')
-		self.w_ge = np.load('w.npy')
-		self.v_ge = np.load('v.npy')
-		self.CV_ge = np.load('CV.npy')
-		self.MFP_ge = np.load('MFP.npy')
-		self.Etot_ge = np.load('Etot.npy')
+		self.N_ge = np.load('N_input.npy')
+		self.E_ge = np.load('E_input.npy')
+		self.w_ge = np.load('w_input.npy')
+		self.v_ge = np.load('v_input.npy')
+		self.CV_ge = np.load('CV_input.npy')
+		self.MFP_ge = np.load('MFP_input.npy')
+		self.Etot_ge = np.load('Etot_input.npy')
 
 		#Temperature array
-		self.Ts = np.load('T.npy')
+		self.Ts = np.load('T_input.npy')
 
 		#Account for the different volumes
 		self.N_ge *= self.V_subcell 
@@ -1309,17 +1309,16 @@ class GrayModel_diffusive_walls(object):
 		os.chdir(array_folder)
 
 		#Germanium
-		self.N_ge = np.load('N.npy')
-		self.E_ge = np.load('E.npy')
-		self.w_ge = np.load('w.npy')
-		self.v_ge = np.load('v.npy')
-		self.CV_ge = np.load('CV.npy')
-		self.MFP_ge = np.load('MFP.npy')
-		self.Etot_ge = np.load('Etot.npy')
+		self.N_ge = np.load('N_input.npy')
+		self.E_ge = np.load('E_input.npy')
+		self.w_ge = np.load('w_input.npy')
+		self.v_ge = np.load('v_input.npy')
+		self.CV_ge = np.load('CV_input.npy')
+		self.MFP_ge = np.load('MFP_input.npy')
+		self.Etot_ge = np.load('Etot_input.npy')
 
 		#Temperature array
-		self.Ts = np.load('T.npy')
-
+		self.Ts = np.load('T_input.npy')
 		#Account for the different volumes
 		self.N_ge *= self.V_subcell 
 		self.CV_ge *= self.V_subcell

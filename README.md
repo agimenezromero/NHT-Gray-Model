@@ -18,7 +18,7 @@ Table of contents
    * [Overview](#overview)
    * [Table of contents](#table-of-contents)
    * [Requeriments](#requeriments)
-   * [Usage and documentation](#usage-and-documentation)
+   * [Documentation](#documentation)
    * [Examples](#examples)
        - [Create input arrays](#create-input-arrays)
        - [New simulation](#new-simulation)
@@ -34,15 +34,21 @@ Table of contents
 - Matplotlib
 - SciPy
 
-# Usage and documentation
-First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been developed. For the study in the final degree project germanium and silicon have been simulated, so two simple functions have been implemented to create and storage the corresponding arrays easily: 
+# Documentation
+## Creating input arrays
+First of all the input arrays dependent on temperature need to be created. To do so the `ThermalProperties` class has been developed. For the study in the final degree project germanium has been simulated, so a simple function have been implemented to create and storage the corresponding arrays easily: 
 
 * `save_arrays_germanium(init_T, final_T, n)` 
-* `save_arrays_silicon(init_T, final_T, n)`.
 
   - `ìnit_T` (float) - Initial temperature for the computed properties.
   - `final_T` (float) - Final temperature for the computed properties.
   - `n` (int) - Number of points between initial and final temperatures.
+  
+ Moreover a function to create the input arrays for silicon is also available: `save_arrays_silicon(init_T, final_T, n)`.
+ 
+ Once the arrays are created, they are stored in an automatically created folder named `Input_arrays`. This step only needs to be made one time, unless we decide to change the material (Germanium for Silicon for example). So this program just support one kind of element at a time, which corresponds to that storage in the `Input_arrays` folder.
+ 
+## Simulation classes initialisation
 
 To initialise both of the available simulation classes (`GrayModel`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 
@@ -67,7 +73,9 @@ To initialise both of the available simulation classes (`GrayModel`, `GrayModel_
 - `init_restart` : (bool, optional) - Set to true to initialise a simulation from a restart. 
 - `folder_restart` : (string, optional) - Specify the restart folder to start with.
 
-Moreover, simulation function admit this optional parameters
+## Runing simulations
+
+There are 4 ways to run simulations for each of the classes previously mentioned: `simulation(every_restart, folder_outputs)`, `simulation_from_restart(every_restart, folder_outputs)`, `animation()`, `animation_from_restart()`.
 
 - `every_restart` (int, optional) - Restart writting period in frame units.
 - `folder_outputs` : (string, optional) - Folder name to save output files.
@@ -119,7 +127,7 @@ every_flux = 5
 every_restart = 1000
 folder_outputs = 'EXAMPLE_OUTPUTS'
 
-gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model = GrayModel('low', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 gray_model.simulation(every_restart, folder_outputs)
 ```
 
@@ -130,7 +138,7 @@ To run a simulation from a restart only the `init_restart` and `restart_folder` 
 ```python
 from GrayModelLibrary import *
 
-gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
+gray_model = GrayModel('high', init_restart=True, folder_restart='restart_example)
 gray_model.simulation_from_restart()
 ```
 However optional arguments can be passed to the `simulation_from_restart` function
@@ -138,7 +146,7 @@ However optional arguments can be passed to the `simulation_from_restart` functi
 ```python
 from GrayModelLibrary import *
 
-gray_model = GrayModel(init_restart=True, folder_restart='restart_1000')
+gray_model = GrayModel('high', init_restart=True, folder_restart='restart_example')
 gray_model.simulation_from_restart(every_restart=1000, folder='EXAMPLE_OUTPUTS')
 ```
 ## Animation
@@ -175,7 +183,7 @@ And one can also start the animation from an existing restart
 ```python
 from GrayModelLibrary import *
 
-gray_model = GrayModelLybrary(init_restart=True, folder_restart='restart_1000')
+gray_model = GrayModelLybrary('high', init_restart=True, folder_restart='restart_example')
 gray_model.animation_from_restart()
 ```
 
@@ -207,7 +215,7 @@ every_flux = 5
 every_restart = 1000
 folder_outputs = 'EXAMPLE_OUTPUTS'
 
-gray_model = GrayModel_diffusive_walls(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model = GrayModel_diffusive_walls('low', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 gray_model.simulation(every_restart, folder_outputs)
 ```
 

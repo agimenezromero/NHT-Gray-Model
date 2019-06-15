@@ -920,7 +920,7 @@ class GrayModel(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1026,6 +1026,8 @@ class GrayModel(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
 		Energy = []
@@ -1041,7 +1043,7 @@ class GrayModel(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1147,6 +1149,8 @@ class GrayModel(object):
 		f.write('Every_flux: ' + str(self.every_flux))
 
 		f.close()
+
+		print('\nSimulation finished!')
 
 	def animation(self):
 		self.init_particles()
@@ -1837,7 +1841,7 @@ class GrayModel_diffusive_walls(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1943,6 +1947,8 @@ class GrayModel_diffusive_walls(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
 		Energy = []
@@ -1958,7 +1964,7 @@ class GrayModel_diffusive_walls(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -2063,6 +2069,8 @@ class GrayModel_diffusive_walls(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def animation(self):
 		self.init_particles()
 
@@ -2157,61 +2165,3 @@ class GrayModel_diffusive_walls(object):
 		plt.show()
 
 		return self.r, self.subcell_Ts
-
-
-if __name__ == '__main__':
-
-	def find_T(value, T): 
-		for i in range(len(T)):
-			if T[i] >= value:
-				return i
-
-	def match_T(value, E, T):
-		for i in range(len(E)):
-			if E[i] == value:
-				return T[i]
-
-			elif E[i] > value: #If we exceed the value, use interpolation
-				return T[i] * value /  E[i]
-
-	os.chdir(array_folder)
-
-	#PARAMETERS
-	Lx = 1000e-9
-	Ly = 10e-9
-	Lz = 10e-9
-
-	Lx_subcell = 20e-9
-	Ly_subcell = 10e-9
-	Lz_subcell = 10e-9
- 
-	T0 = 11.88
-	Tf = 3
-	Ti = 5
-
-	t_MAX = 20e-9
-	dt = 1e-12
-
-	W = 1
-	every_flux = 5
-
-	every_restart = 100
-	init_restart = False
-	folder_restart = 'restart_0'
-	folder_outputs = 'PROVA'
-
-	MFP = np.load('MFP.npy')
-	N = np.load('N.npy') *Lx_subcell*Ly_subcell*Lz_subcell
-	v_avg = np.load('v.npy')
-	Ts = np.load('T.npy')
-	E = np.load('E.npy')
-
-	print('Max_tau:', np.max(MFP[find_T(Tf, Ts): find_T(T0, Ts)] / v_avg[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('MFP max:', MFP[find_T(Tf, Ts)], ' MFP_avg: ', np.mean(MFP[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('v_avg max:', v_avg[find_T(Tf, Ts)], 'dt_max:', Lx_subcell/v_avg[find_T(Tf, Ts)])
-	print('N: ', np.mean(N[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('E_avg: ', np.mean(E[find_T(Tf, Ts): find_T(T0, Ts)]))
-
-	gas = GrayModel('low', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
-
-	gas.animation()

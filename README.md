@@ -232,6 +232,8 @@ Some of the examples above reported have been included in the [Examples](https:/
 - Type `python3 desired_file_name.py` to run the desired script. For example `python3 Example_low_T_ballistic.py`
 - **Input files not need to be created as there have been already included** (see Input_arrays folder)
 
+If you run one of the simulation scripts restart folders and, at the end of the simulation, an output folder will be created. The output folder contains compressed .npy arrays of all the relevant magnitudes calculated in the simulation. These arrays can be loaded using numpy and ploted with matplotlib easily.
+
 # Authors
 * **A. Giménez-Romero**
 

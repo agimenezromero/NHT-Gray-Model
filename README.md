@@ -19,6 +19,9 @@ Table of contents
    * [Table of contents](#table-of-contents)
    * [Requeriments](#requeriments)
    * [Documentation](#documentation)
+       - [Creating input arrays](#creating-input-arrays)
+       - [Simulation classes initialisation](#simulation-classes-initialisation)
+       - [Running simulations](#running-simulations)
    * [Examples](#examples)
        - [Create input arrays](#create-input-arrays)
        - [New simulation](#new-simulation)
@@ -52,6 +55,8 @@ First of all the input arrays dependent on temperature need to be created. To do
 
 To initialise both of the available simulation classes (`GrayModel`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 
+- `type_` (string) - Temperature regime ('high' or 'low').
+
 - `Lx` (float) - Domain length (x-direction).
 - `Ly` (float) - Domain width (y-direction).
 - `Lz` (float) - Domain height (z-direction).
@@ -73,7 +78,7 @@ To initialise both of the available simulation classes (`GrayModel`, `GrayModel_
 - `init_restart` : (bool, optional) - Set to true to initialise a simulation from a restart. 
 - `folder_restart` : (string, optional) - Specify the restart folder to start with.
 
-## Runing simulations
+## Running simulations
 
 There are 4 ways to run simulations for each of the classes previously mentioned: `simulation(every_restart, folder_outputs)`, `simulation_from_restart(every_restart, folder_outputs)`, `animation()`, `animation_from_restart()`.
 
@@ -83,7 +88,7 @@ There are 4 ways to run simulations for each of the classes previously mentioned
 # Examples
 
 ## Create input arrays
-To create and storage the input arrays needed by the simulation software the `ThermalProperties` class has been developed. Then, two functions have been built to use it to create the input arrays for germanium and silicon. 
+To create and storage the input arrays needed by the simulation software the `ThermalProperties` class has been developed. Then, two functions have been built to use it to create the input arrays for germanium and silicon. For the final degree project only germanium has been studied, so the code below will create the arrays necessary to simulate bulk germanium. 
 
 ```python
 from GrayModelLibrary import *
@@ -93,7 +98,6 @@ final_T = 500
 n = 10000
 
 save_arrays_germanium(init_T, final_T, n)
-save_arrays_silicon(init_T, final_T, n)
 ```
 
 With this simple code the input arrays for these materials will be created  and stored in the automatically created `Input_arrays` folder.

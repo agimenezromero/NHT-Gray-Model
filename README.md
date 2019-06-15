@@ -46,7 +46,7 @@ First of all the input arrays dependent on temperature need to be created. To do
 
 To initialise both of the available simulation classes (`GrayModel`, `GrayModel_diffusive_walls`) the following parameters must be passed in:
 
-- `Lx` (float) - Domain lenght (x-direction).
+- `Lx` (float) - Domain length (x-direction).
 - `Ly` (float) - Domain width (y-direction).
 - `Lz` (float) - Domain height (z-direction).
 
@@ -78,8 +78,7 @@ Moreover, simulation function admit this optional parameters
 To create and storage the input arrays needed by the simulation software the `ThermalProperties` class has been developed. Then, two functions have been built to use it to create the input arrays for germanium and silicon. 
 
 ```python
-from GrayModelClasses import *
-#also from GrayModelClasses import save_arrays_germanium, save_arrays_silicon
+from GrayModelLibrary import *
 
 init_T = 1
 final_T = 500
@@ -96,8 +95,7 @@ With this simple code the input arrays for these materials will be created  and 
 To perform a new simulation, all the system parameters must be initialised.
 
 ```python
-from GrayModelClasses import *
-#also from GrayModelClasses import GrayModel
+from GrayModelLibrary import *
 
 Lx = 10e-9
 Ly = 10e-9
@@ -130,7 +128,7 @@ gray_model.simulation(every_restart, folder_outputs)
 To run a simulation from a restart only the `init_restart` and `restart_folder` are needed to initialise the class. If the class is initialized with some of the other arguments of the exemple above they will be simply ignored.
 
 ```python
-from GrayModelClasses import *
+from GrayModelLibrary import *
 
 gray_model = GrayModel(init_restart=True, folder_restart='restart_100')
 gray_model.simulation_from_restart()
@@ -138,7 +136,7 @@ gray_model.simulation_from_restart()
 However optional arguments can be passed to the `simulation_from_restart` function
 
 ```python
-from GrayModelClasses import *
+from GrayModelLibrary import *
 
 gray_model = GrayModel(init_restart=True, folder_restart='restart_1000')
 gray_model.simulation_from_restart(every_restart=1000, folder='EXAMPLE_OUTPUTS')
@@ -147,7 +145,7 @@ gray_model.simulation_from_restart(every_restart=1000, folder='EXAMPLE_OUTPUTS')
 A real time animation of the sub-cell temperature evolution is also available, which makes all the calculation needed *on the fly*. Runing the animation for a new system is as simple as running a simulation.
 
 ```python
-from GrayModelClasses import *
+from GrayModelLibrary import *
 
 Lx = 10e-9
 Ly = 10e-9
@@ -167,7 +165,7 @@ dt = 0.1e-12
 W = 0.05
 every_flux = 5
 
-gray_model = GrayModel(Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
+gray_model = GrayModel('low', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 gray_model.animation()
 ```
 
@@ -175,9 +173,9 @@ gray_model.animation()
 And one can also start the animation from an existing restart
 
 ```python
-from GrayModelClasses import *
+from GrayModelLibrary import *
 
-gray_model = GrayModel(init_restart=True, folder_restart='restart_1000')
+gray_model = GrayModelLybrary(init_restart=True, folder_restart='restart_1000')
 gray_model.animation_from_restart()
 ```
 
@@ -185,8 +183,7 @@ gray_model.animation_from_restart()
 To considere diffusive boundary walls just call the other implemented class named `GrayModel_diffusive_walls` which is used in the same way as the `GrayModel` class. Anyway a single example is presented
 
 ```python
-from GrayModelClasses import *
-#also from GrayModelClasses import GrayModel_diffusive_walls
+from GrayModelLibrary import *
 
 Lx = 10e-9
 Ly = 10e-9

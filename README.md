@@ -28,11 +28,13 @@ Table of contents
        - [Simulation from restart](#simulation-from-restart)
        - [Animation](#animation)
        - [Animation from restart](#animation-from-restart)
+   * [Running example scripts](#running-example-scripts)
    * [Authors](#authors)
    * [License](#license)
 <!--te-->
 
 # Requeriments
+Python 3 installed with the following libraries
 - NumPy
 - Matplotlib
 - SciPy
@@ -222,6 +224,13 @@ folder_outputs = 'EXAMPLE_OUTPUTS'
 gray_model = GrayModel_diffusive_walls('low', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
 gray_model.simulation(every_restart, folder_outputs)
 ```
+
+# Running example scripts
+Some of the examples above reported have been included in the [Examples](https://github.com/agimenezromero/NHT-Gray-Model/tree/master/Examples) folder as python .py files. To run them follow the next steps (after dowloading the project)
+
+- Go to the Example folder and open a console in the current folder.
+- Type `python3 desired_file_name.py` to run the desired script. For example `python3 Example_low_T_ballistic.py`
+- **Input files not need to be created as there have been already included** (see Input_arrays folder)
 
 # Authors
 * **A. Giménez-Romero**

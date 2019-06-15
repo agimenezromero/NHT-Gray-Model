@@ -153,14 +153,14 @@ def save_arrays_germanium(init_T, final_T, n):
 	properties = ThermalProperties(init_T, final_T, n, maximum_freqs_ge, vs_ge, cs_ge, omegas_0_ge, k_bulk_ge, 'Germanium')
 	N, E, w, v, CV, MFP, E_tot, T = properties.fill_arrays()
 
-	np.save('N_ge', N)
-	np.save('E_ge', E)
-	np.save('w_ge', w)
-	np.save('v_ge', v)
-	np.save('CV_ge', CV)
-	np.save('MFP_ge', MFP)
-	np.save('Etot_ge', E_tot)
-	np.save('T_ge', T)
+	np.save('N', N)
+	np.save('E', E)
+	np.save('w', w)
+	np.save('v', v)
+	np.save('CV', CV)
+	np.save('MFP', MFP)
+	np.save('Etot', E_tot)
+	np.save('T', T)
 
 def save_arrays_silicon(init_T, final_T, n):
 
@@ -169,14 +169,14 @@ def save_arrays_silicon(init_T, final_T, n):
 	properties = ThermalProperties(init_T, final_T, n, maximum_freqs_si, vs_si, cs_si, omegas_0_si, k_bulk_si, 'Silicon')
 	N, E, w, v, CV, MFP, E_tot, T = properties.fill_arrays()
  
-	np.save('N_si', N)
-	np.save('E_si', E)
-	np.save('w_si', w)
-	np.save('v_si', v)
-	np.save('CV_si', CV)
-	np.save('MFP_si', MFP)
-	np.save('Etot_si', E_tot)
-	np.save('T_si', T)
+	np.save('N', N)
+	np.save('E', E)
+	np.save('w', w)
+	np.save('v', v)
+	np.save('CV', CV)
+	np.save('MFP', MFP)
+	np.save('Etot', E_tot)
+	np.save('T', T)
 
 ############################################
 #										   #
@@ -425,38 +425,24 @@ class GrayModel(object):
 		#Load arrays
 		os.chdir(array_folder)
 
-		#Silicon
-		self.N_si = np.load('N_si.npy')
-		self.E_si = np.load('E_si.npy')
-		self.w_si = np.load('w_si.npy')
-		self.v_si = np.load('v_si.npy')
-		self.CV_si = np.load('CV_si.npy')
-		self.MFP_si = np.load('MFP_si.npy')
-		self.Etot_si = np.load('Etot_si.npy')
-
 		#Germanium
-		self.N_ge = np.load('N_ge.npy')
-		self.E_ge = np.load('E_ge.npy')
-		self.w_ge = np.load('w_ge.npy')
-		self.v_ge = np.load('v_ge.npy')
-		self.CV_ge = np.load('CV_ge.npy')
-		self.MFP_ge = np.load('MFP_ge.npy')
-		self.Etot_ge = np.load('Etot_ge.npy')
+		self.N_ge = np.load('N.npy')
+		self.E_ge = np.load('E.npy')
+		self.w_ge = np.load('w.npy')
+		self.v_ge = np.load('v.npy')
+		self.CV_ge = np.load('CV.npy')
+		self.MFP_ge = np.load('MFP.npy')
+		self.Etot_ge = np.load('Etot.npy')
 
 		#Temperature array
-		self.Ts = np.load('T_ge.npy')
+		self.Ts = np.load('T.npy')
 
 		#Account for the different volumes
 		self.N_ge *= self.V_subcell 
 		self.CV_ge *= self.V_subcell
 		self.Etot_ge *= self.V_subcell
 
-		self.N_si *= self.V_subcell 
-		self.CV_si *= self.V_subcell
-		self.Etot_si *= self.V_subcell
-
 		#Maximum energies
-		self.E_max_si = 3.1752e-21
 		self.E_max_ge = 1.659e-21
 
 	def find_T(self, value, T): 
@@ -934,7 +920,7 @@ class GrayModel(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1040,6 +1026,8 @@ class GrayModel(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
 		Energy = []
@@ -1055,7 +1043,7 @@ class GrayModel(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1161,6 +1149,8 @@ class GrayModel(object):
 		f.write('Every_flux: ' + str(self.every_flux))
 
 		f.close()
+
+		print('\nSimulation finished!')
 
 	def animation(self):
 		self.init_particles()
@@ -1318,38 +1308,24 @@ class GrayModel_diffusive_walls(object):
 		#Load arrays
 		os.chdir(array_folder)
 
-		#Silicon
-		self.N_si = np.load('N_si.npy')
-		self.E_si = np.load('E_si.npy')
-		self.w_si = np.load('w_si.npy')
-		self.v_si = np.load('v_si.npy')
-		self.CV_si = np.load('CV_si.npy')
-		self.MFP_si = np.load('MFP_si.npy')
-		self.Etot_si = np.load('Etot_si.npy')
-
 		#Germanium
-		self.N_ge = np.load('N_ge.npy')
-		self.E_ge = np.load('E_ge.npy')
-		self.w_ge = np.load('w_ge.npy')
-		self.v_ge = np.load('v_ge.npy')
-		self.CV_ge = np.load('CV_ge.npy')
-		self.MFP_ge = np.load('MFP_ge.npy')
-		self.Etot_ge = np.load('Etot_ge.npy')
+		self.N_ge = np.load('N.npy')
+		self.E_ge = np.load('E.npy')
+		self.w_ge = np.load('w.npy')
+		self.v_ge = np.load('v.npy')
+		self.CV_ge = np.load('CV.npy')
+		self.MFP_ge = np.load('MFP.npy')
+		self.Etot_ge = np.load('Etot.npy')
 
 		#Temperature array
-		self.Ts = np.load('T_ge.npy')
+		self.Ts = np.load('T.npy')
 
 		#Account for the different volumes
 		self.N_ge *= self.V_subcell 
 		self.CV_ge *= self.V_subcell
 		self.Etot_ge *= self.V_subcell
 
-		self.N_si *= self.V_subcell 
-		self.CV_si *= self.V_subcell
-		self.Etot_si *= self.V_subcell
-
 		#Maximum energies
-		self.E_max_si = 3.1752e-21
 		self.E_max_ge = 1.659e-21
 
 	def find_T(self, value, T): 
@@ -1865,7 +1841,7 @@ class GrayModel_diffusive_walls(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -1971,6 +1947,8 @@ class GrayModel_diffusive_walls(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def simulation_from_restart(self, every_restart=100, folder_outputs='OUTPUTS'):
 
 		Energy = []
@@ -1986,7 +1964,7 @@ class GrayModel_diffusive_walls(object):
 		t0 = current_time()
 
 		for k in range(self.Nt):
-			print('Timestep:', k)
+			print('Timestep:', k, 'of', self.Nt, '(%.2f)' % (100 * k/self.Nt), '%')
 
 			if k % every_restart == 0:
 
@@ -2091,6 +2069,8 @@ class GrayModel_diffusive_walls(object):
 
 		f.close()
 
+		print('\nSimulation finished!')
+
 	def animation(self):
 		self.init_particles()
 
@@ -2185,61 +2165,3 @@ class GrayModel_diffusive_walls(object):
 		plt.show()
 
 		return self.r, self.subcell_Ts
-
-
-if __name__ == '__main__':
-
-	def find_T(value, T): 
-		for i in range(len(T)):
-			if T[i] >= value:
-				return i
-
-	def match_T(value, E, T):
-		for i in range(len(E)):
-			if E[i] == value:
-				return T[i]
-
-			elif E[i] > value: #If we exceed the value, use interpolation
-				return T[i] * value /  E[i]
-
-	os.chdir(array_folder)
-
-	#PARAMETERS
-	Lx = 500e-9
-	Ly = 10e-9
-	Lz = 10e-9
-
-	Lx_subcell = 10e-9
-	Ly_subcell = 10e-9
-	Lz_subcell = 10e-9
- 
-	T0 = 150
-	Tf = 100
-	Ti = 125
-
-	t_MAX = 1e-9
-	dt = 4e-12
-
-	W = 5000
-	every_flux = 5
-
-	every_restart = 100
-	init_restart = False
-	folder_restart = 'restart_0'
-	folder_outputs = 'PROVA'
-
-	MFP = np.load('MFP_ge.npy')
-	N = np.load('N_ge.npy') *Lx_subcell*Ly_subcell*Lz_subcell
-	v_avg = np.load('v_ge.npy')
-	Ts = np.load('T_ge.npy')
-	E = np.load('E_ge.npy')
-
-	print('Max_tau:', np.max(MFP[find_T(Tf, Ts): find_T(T0, Ts)] / v_avg[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('MFP max:', MFP[find_T(Tf, Ts)], ' MFP_avg: ', np.mean(MFP[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('v_avg max:', v_avg[find_T(Tf, Ts)], 'dt_max:', Lx_subcell/v_avg[find_T(Tf, Ts)])
-	print('N: ', np.mean(N[find_T(Tf, Ts): find_T(T0, Ts)]))
-	print('E_avg: ', np.mean(E[find_T(Tf, Ts): find_T(T0, Ts)]))
-
-	gas = GrayModel('high', Lx, Ly, Lz, Lx_subcell, Ly_subcell, Lz_subcell, T0, Tf, Ti, t_MAX, dt, W, every_flux)
-
-	gas.simulation(every_restart=every_restart)

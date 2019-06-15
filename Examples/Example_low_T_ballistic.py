@@ -1,5 +1,5 @@
 import os
-from GrayModelClasses import *
+from GrayModelLibrary import *
 import time
 
 ##########################################################################################################

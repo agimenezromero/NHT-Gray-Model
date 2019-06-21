@@ -87,6 +87,18 @@ There are 4 ways to run simulations for each of the classes previously mentioned
 - `every_restart` (int, optional) - Restart writting period in frame units.
 - `folder_outputs` : (string, optional) - Folder name to save output files.
 
+## Output files
+
+- `Energy.npy`: Binary file storing a numpy ndarray of the total energy of the system for each time step. So the array has size=(Nt,) where `Nt` is the total number of frames or iterations. 
+- `Phonons.npy`: Binary file storing a numpy ndarray of the total number of phonons in the whole domain for each time step with size (Nt,).
+- `Temperatures.npy`: Binary file storing a numpy ndarray of the total average temperature of the system for each time step with size (Nt,).
+- `Scattering events.npy`: Binary file storing a numpy ndarray of the number of scattering events in the whole system every time step with size (Nt,).
+- `Elapsed_time.npy`: Binary file storing a numpy ndarray of the time elapsed untill the start of the simulation for each time step with size (Nt,).
+
+- `Subcell_Ts.npy`: Binary file storing a numpy ndarray of the temperature of each subcell for each time step. Thus, it will have size (Nt, (Nx, Ny, Nz)) where Nx, Ny and Nz are the number of cells in each direction.
+
+This files will be stored in the outputs folder. Moreover, they will be also saved in every restart folder with the values computed untill the moment of writting each restart.
+
 # Examples
 
 ## Create input arrays

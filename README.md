@@ -17,7 +17,7 @@ Table of contents
 <!--ts-->
    * [Overview](#overview)
    * [Table of contents](#table-of-contents)
-   * [Requeriments](#requeriments)
+   * [Requirements](#requirements)
    * [Documentation](#documentation)
        - [Creating input arrays](#creating-input-arrays)
        - [Simulation classes initialisation](#simulation-classes-initialisation)
@@ -33,7 +33,7 @@ Table of contents
    * [License](#license)
 <!--te-->
 
-# Requeriments
+# Requirements
 Python 3 installed with the following libraries
 - NumPy
 - Matplotlib
